@@ -19,20 +19,20 @@ export default function Home() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-5xl lg:text-7xl font-bold tracking-tight mb-8 animate-fade-in-up">
-              <span className="block text-zinc-900">FireGEO Monitor</span>
-              <span className="block bg-gradient-to-r from-red-600 to-yellow-500 bg-clip-text text-transparent">
-                AI Brand Visibility Platform
+              <span className="block text-zinc-900">PromptDial</span>
+              <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                AI Orchestration Platform
               </span>
             </h1>
             <p className="text-xl lg:text-2xl text-zinc-600 max-w-3xl mx-auto mb-6 animate-fade-in-up animation-delay-200">
-              Track how AI models rank your brand against competitors
+              Intelligent LLM routing, conversation management, and cost optimization
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-400">
               <Link
-                href="/brand-monitor"
+                href="/orchestrator"
                 className="btn-firecrawl-orange inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] text-base font-medium transition-all duration-200 h-12 px-8"
               >
-                Start Brand Analysis
+                Start Orchestrating
               </Link>
               <Link
                 href="/plans"
@@ -42,7 +42,7 @@ export default function Home() {
               </Link>
             </div>
             <p className="mt-6 text-sm text-zinc-500 animate-fade-in-up animation-delay-600">
-              Powered by AI • Real-time Analysis • Competitor Tracking • SEO Insights
+              Smart Routing • Cost Optimization • Provider Switching • Context Management
             </p>
           </div>
 
@@ -50,20 +50,20 @@ export default function Home() {
           <div className="mt-20 bg-zinc-900 rounded-[20px] p-12 animate-fade-in-scale animation-delay-800">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
               <div className="text-center animate-fade-in-up animation-delay-1000">
-                <div className="text-4xl font-bold text-white">ChatGPT</div>
-                <div className="text-sm text-zinc-400 mt-1">Claude, Perplexity & More</div>
+                <div className="text-4xl font-bold text-white">Multi-LLM</div>
+                <div className="text-sm text-zinc-400 mt-1">OpenAI, Claude, Gemini</div>
               </div>
               <div className="text-center animate-fade-in-up animation-delay-1000" style={{animationDelay: '1100ms'}}>
-                <div className="text-4xl font-bold text-white">Real-time</div>
-                <div className="text-sm text-zinc-400 mt-1">Analysis</div>
+                <div className="text-4xl font-bold text-white">Smart</div>
+                <div className="text-sm text-zinc-400 mt-1">Routing</div>
               </div>
               <div className="text-center animate-fade-in-up animation-delay-1000" style={{animationDelay: '1200ms'}}>
-                <div className="text-4xl font-bold text-white">Competitor</div>
-                <div className="text-sm text-zinc-400 mt-1">Tracking</div>
+                <div className="text-4xl font-bold text-white">Cost</div>
+                <div className="text-sm text-zinc-400 mt-1">Optimization</div>
               </div>
               <div className="text-center animate-fade-in-up animation-delay-1000" style={{animationDelay: '1300ms'}}>
-                <div className="text-4xl font-bold text-white">Actionable</div>
-                <div className="text-sm text-zinc-400 mt-1">Insights</div>
+                <div className="text-4xl font-bold text-white">Context</div>
+                <div className="text-sm text-zinc-400 mt-1">Aware</div>
               </div>
             </div>
           </div>
@@ -76,10 +76,10 @@ export default function Home() {
           <div className="bg-gray-50 rounded-[30px] p-16">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-zinc-900 mb-4">
-                Monitor Your Brand Visibility
+                Choose Your Orchestration Plan
               </h2>
               <p className="text-xl text-zinc-600">
-                Choose the plan that fits your monitoring needs
+                Flexible pricing for teams of all sizes
               </p>
             </div>
 
@@ -87,7 +87,7 @@ export default function Home() {
             {/* Starter */}
             <div className="bg-white p-8 rounded-[20px] border border-zinc-200 animate-fade-in-up animation-delay-400 hover:scale-105 transition-all duration-200">
               <h3 className="text-2xl font-bold mb-2">Starter</h3>
-              <p className="text-zinc-600 mb-6">Perfect for personal brands</p>
+              <p className="text-zinc-600 mb-6">Perfect for individuals</p>
               <div className="mb-6">
                 <span className="text-4xl font-bold">$0</span>
                 <span className="text-zinc-600">/month</span>
@@ -97,19 +97,19 @@ export default function Home() {
                   <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  10 brand analyses/month
+                  1,000 API calls/month
                 </li>
                 <li className="flex items-center">
                   <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Basic AI providers
+                  Access to GPT-3.5 & Claude Haiku
                 </li>
                 <li className="flex items-center">
                   <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Email reports
+                  Basic conversation history
                 </li>
               </ul>
               <Link
@@ -126,7 +126,7 @@ export default function Home() {
                 Most Popular
               </div>
               <h3 className="text-2xl font-bold mb-2">Pro</h3>
-              <p className="text-zinc-600 mb-6">For growing businesses</p>
+              <p className="text-zinc-600 mb-6">For teams and startups</p>
               <div className="mb-6">
                 <span className="text-4xl font-bold">$49</span>
                 <span className="text-zinc-600">/month</span>
@@ -136,19 +136,19 @@ export default function Home() {
                   <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Unlimited brand analyses
+                  50,000 API calls/month
                 </li>
                 <li className="flex items-center">
                   <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  All AI providers
+                  All LLM providers
                 </li>
                 <li className="flex items-center">
                   <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Real-time alerts
+                  Advanced routing & optimization
                 </li>
               </ul>
               <Link
@@ -162,7 +162,7 @@ export default function Home() {
             {/* Enterprise */}
             <div className="bg-white p-8 rounded-[20px] border border-zinc-200 animate-fade-in-up animation-delay-800 hover:scale-105 transition-all duration-200">
               <h3 className="text-2xl font-bold mb-2">Enterprise</h3>
-              <p className="text-zinc-600 mb-6">For agencies & large brands</p>
+              <p className="text-zinc-600 mb-6">For large organizations</p>
               <div className="mb-6">
                 <span className="text-4xl font-bold">Custom</span>
               </div>
@@ -171,19 +171,19 @@ export default function Home() {
                   <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Multiple brands
+                  Unlimited API calls
                 </li>
                 <li className="flex items-center">
                   <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  API access
+                  Custom model selection
                 </li>
                 <li className="flex items-center">
                   <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  White-label options
+                  Priority support & SLA
                 </li>
               </ul>
               <Link
@@ -210,16 +210,16 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-[30px] p-16 text-center">
             <h2 className="text-4xl font-bold text-white mb-6">
-              See How AI Models Rank Your Brand
+              Start Orchestrating Your AI Workflows
             </h2>
             <p className="text-xl text-orange-100 mb-8">
-              Monitor your brand visibility across ChatGPT, Claude, Perplexity and more
+              Intelligent routing across multiple LLMs with cost optimization
             </p>
             <Link
-              href="/brand-monitor"
+              href="/orchestrator"
               className="btn-firecrawl-default inline-flex items-center justify-center whitespace-nowrap rounded-[10px] text-base font-medium transition-all duration-200 h-12 px-8"
             >
-              Start Free Analysis
+              Get Started Free
             </Link>
           </div>
         </div>
@@ -234,7 +234,7 @@ export default function Home() {
               Frequently asked questions
             </h2>
             <p className="text-xl text-zinc-600 animate-fade-in-up animation-delay-200">
-              Everything you need to know about FireGEO Monitor
+              Everything you need to know about PromptDial
             </p>
           </div>
 
@@ -246,7 +246,7 @@ export default function Home() {
                 className="w-full px-6 py-5 text-left flex justify-between items-center hover:bg-gray-100 transition-colors"
               >
                 <h3 className="text-lg font-semibold text-zinc-900">
-                  How does FireGEO Monitor work?
+                  How does PromptDial work?
                 </h3>
                 <svg
                   className={`w-5 h-5 text-zinc-500 transition-transform ${openFaq === 0 ? 'rotate-180' : ''}`}
@@ -260,7 +260,7 @@ export default function Home() {
               {openFaq === 0 && (
                 <div className="px-6 py-6">
                   <p className="text-zinc-600 leading-relaxed">
-                    FireGEO Monitor analyzes your brand's visibility across major AI platforms like ChatGPT, Claude, and Perplexity. Simply enter your website URL, and we'll show you how AI models rank your brand against competitors, what prompts trigger your appearance, and provide actionable insights to improve your AI visibility.
+                    PromptDial intelligently routes your AI requests across multiple LLM providers based on cost, performance, and availability. It automatically selects the best model for each task, manages conversation context, and optimizes your AI spending while maintaining high-quality outputs.
                   </p>
                 </div>
               )}
@@ -273,7 +273,7 @@ export default function Home() {
                 className="w-full px-6 py-5 text-left flex justify-between items-center hover:bg-gray-100 transition-colors"
               >
                 <h3 className="text-lg font-semibold text-zinc-900">
-                  Which AI providers do you monitor?
+                  Which LLM providers do you support?
                 </h3>
                 <svg
                   className={`w-5 h-5 text-zinc-500 transition-transform ${openFaq === 1 ? 'rotate-180' : ''}`}
@@ -287,7 +287,7 @@ export default function Home() {
               {openFaq === 1 && (
                 <div className="px-6 py-6">
                   <p className="text-zinc-600 leading-relaxed">
-                    We monitor all major AI platforms including OpenAI's ChatGPT, Anthropic's Claude, Perplexity, Google's Gemini, and more. Our system continuously updates as new AI providers emerge, ensuring you always have comprehensive visibility across the AI landscape.
+                    PromptDial supports all major LLM providers including OpenAI (GPT-4, GPT-3.5), Anthropic (Claude 3, Claude 2), Google (Gemini Pro, PaLM), Meta (Llama), and more. We continuously add new providers and models as they become available.
                   </p>
                 </div>
               )}
@@ -300,7 +300,7 @@ export default function Home() {
                 className="w-full px-6 py-5 text-left flex justify-between items-center hover:bg-gray-100 transition-colors"
               >
                 <h3 className="text-lg font-semibold text-zinc-900">
-                  How often is the data updated?
+                  How does intelligent routing work?
                 </h3>
                 <svg
                   className={`w-5 h-5 text-zinc-500 transition-transform ${openFaq === 2 ? 'rotate-180' : ''}`}
@@ -314,7 +314,7 @@ export default function Home() {
               {openFaq === 2 && (
                 <div className="px-6 py-6">
                   <p className="text-zinc-600 leading-relaxed">
-                    Our monitoring runs in real-time. When you request an analysis, we query all AI providers simultaneously to get the most current results. You can run new analyses anytime to track changes in your brand visibility and see how your optimization efforts are performing.
+                    PromptDial analyzes your request type, required capabilities, and your preferences to automatically select the optimal LLM. It considers factors like task complexity, cost constraints, response time requirements, and model strengths to ensure you get the best results at the lowest cost.
                   </p>
                 </div>
               )}
@@ -327,7 +327,7 @@ export default function Home() {
                 className="w-full px-6 py-5 text-left flex justify-between items-center hover:bg-gray-100 transition-colors"
               >
                 <h3 className="text-lg font-semibold text-zinc-900">
-                  What insights will I get?
+                  How much can I save with PromptDial?
                 </h3>
                 <svg
                   className={`w-5 h-5 text-zinc-500 transition-transform ${openFaq === 3 ? 'rotate-180' : ''}`}
@@ -341,7 +341,7 @@ export default function Home() {
               {openFaq === 3 && (
                 <div className="px-6 py-6">
                   <p className="text-zinc-600 leading-relaxed">
-                    You'll see your brand's visibility score, competitor rankings, which prompts trigger your appearance, response quality analysis, and specific recommendations to improve your AI presence. The platform also tracks trends over time and alerts you to significant changes.
+                    Most teams save 40-60% on their AI costs while improving response quality. PromptDial automatically routes simple queries to cost-effective models while reserving premium models for complex tasks. You also benefit from automatic failover and retry logic, reducing failed requests.
                   </p>
                 </div>
               )}
@@ -354,7 +354,7 @@ export default function Home() {
                 className="w-full px-6 py-5 text-left flex justify-between items-center hover:bg-gray-100 transition-colors"
               >
                 <h3 className="text-lg font-semibold text-zinc-900">
-                  How many credits do I need?
+                  Is my data secure?
                 </h3>
                 <svg
                   className={`w-5 h-5 text-zinc-500 transition-transform ${openFaq === 4 ? 'rotate-180' : ''}`}
@@ -368,7 +368,7 @@ export default function Home() {
               {openFaq === 4 && (
                 <div className="px-6 py-6">
                   <p className="text-zinc-600 leading-relaxed">
-                    Each brand analysis uses 10 credits (1 credit for initial URL analysis, 9 credits for the full AI provider scan). The free tier includes 100 credits monthly, enough for 10 complete analyses. Pro plans include unlimited analyses for comprehensive monitoring.
+                    Yes, PromptDial uses enterprise-grade encryption for all data in transit and at rest. We never store your prompts or responses longer than necessary for processing. You maintain full control over your data retention policies and can request deletion at any time.
                   </p>
                 </div>
               )}
@@ -381,17 +381,17 @@ export default function Home() {
       <section className="py-24 bg-zinc-900">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold text-white mb-6">
-            Start Monitoring Your AI Brand Visibility
+            Start Orchestrating Your AI Infrastructure
           </h2>
           <p className="text-xl text-zinc-400 mb-8">
-            Take control of how AI models present your brand
+            Optimize costs and performance across all your LLM providers
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/brand-monitor"
+              href="/orchestrator"
               className="btn-firecrawl-orange inline-flex items-center justify-center whitespace-nowrap rounded-[10px] text-base font-medium transition-all duration-200 h-12 px-8"
             >
-              Analyze Your Brand
+              Start Orchestrating
             </Link>
             <Link
               href="/plans"

@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SaaS Starter",
-  description: "Next.js SaaS Starter with Better Auth",
+  title: "PromptDial - AI Orchestration Platform",
+  description: "Smart LLM orchestration with intelligent provider switching, prompt optimization, and conversation management",
 };
 
 export default function RootLayout({
