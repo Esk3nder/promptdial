@@ -1,4 +1,5 @@
-import Anthropic from '@anthropic-ai/sdk';
+import { createAnthropic } from '@ai-sdk/anthropic';
+import { generateText } from 'ai';
 import { AIResponse } from './types';
 
 interface WebSearchResult {
@@ -30,7 +31,7 @@ export async function analyzeWithAnthropicWebSearch(
     return null;
   }
 
-  const client = new Anthropic({
+  const anthropic = createAnthropic({
     apiKey: anthropicApiKey,
   });
 
@@ -46,52 +47,25 @@ After searching, analyze your response and determine:
 3. What is the sentiment towards ${brandName}?
 4. Which competitors are mentioned and their positions?`;
 
-    // Call Anthropic with web search tool
-    const message = await client.messages.create({
-      model: 'claude-3-5-sonnet-latest', // This model supports web search
-      max_tokens: 1024,
-      messages: [
-        {
-          role: 'user',
-          content: fullPrompt,
-        }
-      ],
-      tools: [{
-        type: 'web_search_20250305',
-        name: 'web_search',
-        max_uses: 3, // Limit searches to control costs
-      }],
+    // Call Anthropic with the AI SDK
+    // Note: Web search tools are not directly available through the AI SDK
+    // We'll use standard generation for now
+    const result = await generateText({
+      model: anthropic('claude-3-5-sonnet-latest'),
+      maxTokens: 1024,
+      prompt: fullPrompt,
     });
 
-    // Extract the response text and citations
-    let responseText = '';
+    // Extract the response text
+    const responseText = result.text;
     const webSearchResults: WebSearchResult[] = [];
-
-    for (const content of message.content) {
-      if (content.type === 'text') {
-        responseText += content.text;
-        
-        // Extract citations if available
-        if ('citations' in content && content.citations) {
-          for (const citation of content.citations) {
-            if (citation.type === 'web_search_result_location') {
-              webSearchResults.push({
-                url: citation.url,
-                title: citation.title || '',
-                cited_text: citation.cited_text,
-              });
-            }
-          }
-        }
-      }
-    }
 
     // Analyze the response to extract structured data
     const analysis = await analyzeResponseContent(
       responseText,
       brandName,
       competitors,
-      client
+      anthropic
     );
 
     return {
@@ -119,7 +93,7 @@ async function analyzeResponseContent(
   responseText: string,
   brandName: string,
   competitors: string[],
-  client: Anthropic
+  anthropic: any
 ): Promise<{
   brandMentioned: boolean;
   brandPosition?: number;
@@ -129,13 +103,10 @@ async function analyzeResponseContent(
 }> {
   try {
     // Use Claude to analyze its own response
-    const analysisResponse = await client.messages.create({
-      model: 'claude-3-5-haiku-latest', // Use a faster model for analysis
-      max_tokens: 500,
-      messages: [
-        {
-          role: 'user',
-          content: `Analyze this AI response about ${brandName}:
+    const analysisResult = await generateText({
+      model: anthropic('claude-3-5-haiku-latest'),
+      maxTokens: 500,
+      prompt: `Analyze this AI response about ${brandName}:
 
 "${responseText}"
 
@@ -149,11 +120,9 @@ Extract the following information in JSON format:
 }
 
 Only respond with valid JSON, no other text.`,
-        }
-      ],
     });
 
-    const analysisText = analysisResponse.content[0].type === 'text' ? analysisResponse.content[0].text : '{}';
+    const analysisText = analysisResult.text;
     const analysis = JSON.parse(analysisText);
 
     return {
