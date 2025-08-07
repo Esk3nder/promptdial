@@ -27,6 +27,7 @@ import { policyEngine } from './policy-engine';
 import { fetchWebTool } from './tools/fetch-web';
 import { generateText } from 'ai';
 import { openai } from '@ai-sdk/openai';
+import { selfConsistencyPlanner } from './self-consistency-planner';
 
 export class Orchestrator {
   private config: OrchestratorConfig;
@@ -116,42 +117,78 @@ export class Orchestrator {
   ): Promise<OrchestrationResponse> {
     this.addEvent('plan_started', { userGoal });
     
-    const plannerInput: PlannerInput = {
-      user_goal: userGoal,
-      state
-    };
-
-    const systemPrompt = kernelPrompt + '\n\n' + plannerPrompt;
-    
     try {
-      const { text, usage } = await generateText({
-        model: openai('gpt-4o'),
-        system: systemPrompt,
-        prompt: JSON.stringify(plannerInput),
-        maxTokens: this.config.maxTokensPerResponse,
-        temperature: 0.7,
-      });
-
-      this.llmCallCount++;
-      this.tokenUsage.planner += usage?.totalTokens || 0;
-      this.tokenUsage.total += usage?.totalTokens || 0;
-
-      const response = JSON.parse(text) as OrchestrationResponse;
+      // P-1: Self-consistency planning
+      const consistencyResult = await selfConsistencyPlanner.generatePlanWithConsistency(
+        userGoal,
+        state,
+        { maxTokensPerResponse: this.config.maxTokensPerResponse }
+      );
       
-      // Validate and update state
-      if (response.state.plan && response.state.plan.length > 0) {
-        state.plan = response.state.plan;
-        state.cursor = 0;
-        response.state = state;
-        response.next_action = 'execute';
-      }
-
-      this.addEvent('plan_completed', { 
-        planLength: state.plan?.length || 0,
-        tokensUsed: usage?.totalTokens 
+      // Track LLM usage
+      this.llmCallCount += consistencyResult.candidates.length;
+      this.tokenUsage.planner += consistencyResult.tokensUsed;
+      this.tokenUsage.total += consistencyResult.tokensUsed;
+      
+      // Log convergence stats
+      this.addEvent('plan_self_consistency', {
+        candidateCount: consistencyResult.convergenceStats.candidateCount,
+        converged: consistencyResult.convergenceStats.converged,
+        commonSteps: consistencyResult.convergenceStats.commonSteps
       });
-
-      return response;
+      
+      let finalPlan: PlanStep[] | null = consistencyResult.plan;
+      
+      // Fallback to single plan if convergence failed
+      if (!finalPlan || !selfConsistencyPlanner.validateConvergedPlan(finalPlan)) {
+        this.addEvent('plan_convergence_failed', { reason: 'Invalid or no converged plan' });
+        
+        // Generate single plan with lower temperature
+        const plannerInput: PlannerInput = {
+          user_goal: userGoal,
+          state
+        };
+        const systemPrompt = kernelPrompt + '\n\n' + plannerPrompt;
+        
+        const { text, usage } = await generateText({
+          model: openai('gpt-4o'),
+          system: systemPrompt,
+          prompt: JSON.stringify(plannerInput),
+          maxTokens: this.config.maxTokensPerResponse,
+          temperature: 0.3, // Lower temperature for consistency
+        });
+        
+        this.llmCallCount++;
+        this.tokenUsage.planner += usage?.totalTokens || 0;
+        this.tokenUsage.total += usage?.totalTokens || 0;
+        
+        const fallbackResponse = JSON.parse(text) as OrchestrationResponse;
+        if (fallbackResponse.state.plan && fallbackResponse.state.plan.length > 0) {
+          finalPlan = fallbackResponse.state.plan;
+        }
+      }
+      
+      if (!finalPlan || finalPlan.length === 0) {
+        throw new Error('Failed to generate valid plan');
+      }
+      
+      // Update state with final plan
+      state.plan = finalPlan;
+      state.cursor = 0;
+      
+      this.addEvent('plan_completed', { 
+        planLength: state.plan.length,
+        tokensUsed: this.tokenUsage.planner,
+        usedSelfConsistency: consistencyResult.convergenceStats.converged
+      });
+      
+      return {
+        ok: true,
+        state,
+        events: this.events,
+        next_action: 'execute',
+        schema_version: 'v3'
+      };
       
     } catch (error) {
       this.addEvent('plan_error', { error: error.message });
