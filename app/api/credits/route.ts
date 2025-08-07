@@ -5,7 +5,7 @@ import { AuthenticationError, ExternalServiceError, handleApiError } from '@/lib
 import { FEATURE_ID_MESSAGES } from '@/config/constants';
 
 const autumn = new Autumn({
-  apiKey: process.env.AUTUMN_SECRET_KEY!,
+  secretKey: process.env.AUTUMN_SECRET_KEY!,
 });
 
 export async function GET(request: NextRequest) {

@@ -18,7 +18,7 @@ import {
 } from '@/config/constants';
 
 const autumn = new Autumn({
-  apiKey: process.env.AUTUMN_SECRET_KEY!,
+  secretKey: process.env.AUTUMN_SECRET_KEY!,
 });
 
 export const runtime = 'nodejs'; // Use Node.js runtime for streaming
