@@ -61,6 +61,12 @@ export function Navbar() {
             {session && (
               <>
                 <Link
+                  href="/orchestrator"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+                >
+                  Orchestrator
+                </Link>
+                <Link
                   href="/chat"
                   className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
                 >
