@@ -23,7 +23,7 @@ const policyPatterns = {
   ],
   pii: [
     { test: '123-45-6789', shouldBlock: true }, // SSN pattern
-    { test: '4111 1111 1111 1111', shouldBlock: false }, // Test credit card
+    { test: '4111 1111 1111 1111', shouldBlock: false }, // Test credit card (warn only)
     { test: 'example@email.com', shouldBlock: false }, // Email (warning only)
   ],
 };
@@ -134,7 +134,9 @@ console.log('✅ All component tests passed!\n');
 function getPatternsByCategory(category: string): RegExp[] {
   const patterns: Record<string, RegExp[]> = {
     privacy: [
-      /personal\s+(data|information)\s+harvest/i,
+      /harvest.*personal\s+(data|information)/i,
+      /personal\s+(data|information).*harvest/i,
+      /(collect|gather|scrape).*personal\s+(data|information)/i,
       /track\s+(user|person|individual)/i,
       /spy|surveillance|monitor\s+people/i,
     ],

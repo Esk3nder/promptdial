@@ -5,7 +5,9 @@ import { policyViolations } from '@/lib/db/orchestration-schema';
 class PolicyEngine {
   private policyMatrix: PolicyMatrix = {
     privacy: [
-      { pattern: /personal\s+(data|information)\s+harvest/i, action: 'block', message: 'Personal data harvesting is not allowed' },
+      { pattern: /harvest.*personal\s+(data|information)/i, action: 'block', message: 'Personal data harvesting is not allowed' },
+      { pattern: /personal\s+(data|information).*harvest/i, action: 'block', message: 'Personal data harvesting is not allowed' },
+      { pattern: /(collect|gather|scrape).*personal\s+(data|information)/i, action: 'block', message: 'Unauthorized personal data collection is not allowed' },
       { pattern: /track\s+(user|person|individual)/i, action: 'block', message: 'User tracking is not permitted' },
       { pattern: /spy|surveillance|monitor\s+people/i, action: 'block', message: 'Surveillance activities are prohibited' },
       { pattern: /password|credential|secret\s+key/i, action: 'warn', message: 'Handle credentials with care' },
