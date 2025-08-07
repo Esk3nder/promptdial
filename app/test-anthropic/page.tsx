@@ -6,6 +6,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Loader2, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
+import { OrchestrationResponse, OrchestrationEvent } from '@/lib/orchestrator/types';
 
 export default function TestAnthropicPage() {
   const [prompt, setPrompt] = useState('Tell me a joke');
@@ -13,25 +18,58 @@ export default function TestAnthropicPage() {
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [fullTestMode, setFullTestMode] = useState(false);
+  const [orchestratorResponse, setOrchestratorResponse] = useState<OrchestrationResponse | null>(null);
+  const [events, setEvents] = useState<OrchestrationEvent[]>([]);
 
   const testAPI = async () => {
     setLoading(true);
     setError('');
     setResponse('');
+    setOrchestratorResponse(null);
+    setEvents([]);
 
     try {
-      const res = await fetch('/api/test-anthropic', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, model })
-      });
+      if (fullTestMode) {
+        // Test through the orchestrator (using test endpoint without auth)
+        const res = await fetch('/api/test-orchestrator', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            userGoal: prompt,
+            config: {
+              model: model,
+              maxIterations: 1, // For testing, limit to 1 iteration
+            }
+          })
+        });
 
-      const data = await res.json();
-      
-      if (res.ok) {
-        setResponse(data.response);
+        const data: OrchestrationResponse = await res.json();
+        
+        if (res.ok) {
+          setOrchestratorResponse(data);
+          setEvents(data.events || []);
+          if (data.final_answer) {
+            setResponse(data.final_answer);
+          }
+        } else {
+          setError(data.error || 'Failed to get orchestrator response');
+        }
       } else {
-        setError(data.error || 'Failed to get response');
+        // Test direct API
+        const res = await fetch('/api/test-anthropic', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, model })
+        });
+
+        const data = await res.json();
+        
+        if (res.ok) {
+          setResponse(data.response);
+        } else {
+          setError(data.error || 'Failed to get response');
+        }
       }
     } catch (err) {
       setError('Network error: ' + err);
@@ -51,6 +89,20 @@ export default function TestAnthropicPage() {
             <CardDescription>Test your Anthropic API key with different models</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="full-test" className="flex flex-col space-y-1">
+                <span>Full Test Mode</span>
+                <span className="text-sm text-muted-foreground font-normal">
+                  Test through the orchestrator flow instead of direct API
+                </span>
+              </Label>
+              <Switch
+                id="full-test"
+                checked={fullTestMode}
+                onCheckedChange={setFullTestMode}
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="model">Model</Label>
               <Select value={model} onValueChange={setModel}>
@@ -82,7 +134,14 @@ export default function TestAnthropicPage() {
               disabled={loading || !prompt}
               className="w-full"
             >
-              {loading ? 'Testing...' : 'Test API'}
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {fullTestMode ? 'Testing Orchestrator...' : 'Testing API...'}
+                </>
+              ) : (
+                fullTestMode ? 'Test Orchestrator' : 'Test API'
+              )}
             </Button>
           </CardContent>
         </Card>
@@ -107,6 +166,75 @@ export default function TestAnthropicPage() {
               <pre className="whitespace-pre-wrap">{response}</pre>
             </CardContent>
           </Card>
+        )}
+
+        {/* Orchestrator-specific output */}
+        {fullTestMode && orchestratorResponse && (
+          <>
+            {/* Status Card */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Orchestrator Status</CardTitle>
+                  <Badge variant={orchestratorResponse.ok ? 'default' : 'destructive'}>
+                    {orchestratorResponse.next_action}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {orchestratorResponse.state && (
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      Goal: {orchestratorResponse.state.userGoal}
+                    </p>
+                    {orchestratorResponse.state.plan && orchestratorResponse.state.plan.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium mb-2">Execution Plan:</p>
+                        <div className="space-y-1">
+                          {orchestratorResponse.state.plan.map((step, index) => (
+                            <div key={step.id} className="flex items-center gap-2 text-sm">
+                              {index < orchestratorResponse.state.cursor ? (
+                                <CheckCircle2 className="h-3 w-3 text-green-500" />
+                              ) : index === orchestratorResponse.state.cursor ? (
+                                <Loader2 className="h-3 w-3 animate-spin text-blue-500" />
+                              ) : (
+                                <Clock className="h-3 w-3 text-gray-400" />
+                              )}
+                              <span>{step.description}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Events Timeline */}
+            {events.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Event Timeline</CardTitle>
+                  <CardDescription>{events.length} events recorded</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                    {events.map((event, index) => (
+                      <div key={index} className="flex items-start gap-2 text-sm">
+                        <span className="font-medium">{event.type}:</span>
+                        <span className="text-muted-foreground">
+                          {typeof event.data === 'string' 
+                            ? event.data 
+                            : JSON.stringify(event.data, null, 2).substring(0, 100)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </>
         )}
       </div>
     </div>
