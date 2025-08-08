@@ -29,10 +29,10 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-400">
               <Link
-                href="/orchestrator"
+                href="/products"
                 className="btn-firecrawl-orange inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] text-base font-medium transition-all duration-200 h-12 px-8"
               >
-                Start Orchestrating
+                Try It Now
               </Link>
               <Link
                 href="/plans"
@@ -216,7 +216,7 @@ export default function Home() {
               Intelligent routing across multiple LLMs with cost optimization
             </p>
             <Link
-              href="/orchestrator"
+              href="/products"
               className="btn-firecrawl-default inline-flex items-center justify-center whitespace-nowrap rounded-[10px] text-base font-medium transition-all duration-200 h-12 px-8"
             >
               Get Started Free
@@ -388,10 +388,10 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/orchestrator"
+              href="/products"
               className="btn-firecrawl-orange inline-flex items-center justify-center whitespace-nowrap rounded-[10px] text-base font-medium transition-all duration-200 h-12 px-8"
             >
-              Start Orchestrating
+              Start Optimizing
             </Link>
             <Link
               href="/plans"
