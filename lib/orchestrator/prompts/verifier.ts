@@ -40,12 +40,6 @@ DECISION CRITERIA:
   * Formatting problems
   * Under token limit for retry
 
-- REFUSE → Set next_action to "safe_refuse"
-  * Policy violation detected
-  * Cannot achieve goal safely
-  * Unrecoverable errors
-  * Harmful content risk
-
 FINAL ANSWER FORMAT:
 - Synthesize results into coherent response
 - Highlight key findings

@@ -8,14 +8,12 @@ export const orchestrationStatusEnum = pgEnum('orchestration_status', [
   'executing',
   'verifying',
   'completed',
-  'failed',
-  'refused'
+  'failed'
 ]);
 
 export const nextActionEnum = pgEnum('next_action', [
   'execute',
   'done',
-  'safe_refuse',
   'clarify'
 ]);
 
@@ -28,7 +26,6 @@ export const eventTypeEnum = pgEnum('event_type', [
   'verification_started',
   'verification_passed',
   'verification_failed',
-  'policy_violation',
   'error',
   'warning'
 ]);
@@ -52,7 +49,6 @@ export const orchestrationRuns = pgTable('orchestration_runs', {
   
   // Results
   finalAnswer: text('final_answer'),
-  refusalReason: text('refusal_reason'),
   
   // Metrics
   llmCallCount: integer('llm_call_count').default(0),
@@ -96,18 +92,6 @@ export const orchestrationPrompts = pgTable('orchestration_prompts', {
   metadata: jsonb('metadata'), // Additional configuration
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()),
-});
-
-// Policy violations tracking
-export const policyViolations = pgTable('policy_violations', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  runId: uuid('run_id').references(() => orchestrationRuns.id, { onDelete: 'cascade' }),
-  userId: text('user_id').notNull(),
-  violationType: text('violation_type').notNull(), // 'privacy', 'self_harm', 'illicit', 'pii'
-  content: text('content'), // The content that triggered violation
-  context: jsonb('context'), // Additional context
-  wasBlocked: boolean('was_blocked').default(true),
-  createdAt: timestamp('created_at').defaultNow(),
 });
 
 // Orchestration metrics for monitoring
@@ -161,7 +145,6 @@ export const orchestrationRunsRelations = relations(orchestrationRuns, ({ one, m
   }),
   states: many(orchestrationState),
   events: many(orchestrationEvents),
-  violations: many(policyViolations),
   metrics: one(orchestrationMetrics),
   toolExecutions: many(toolExecutions),
 }));
@@ -176,13 +159,6 @@ export const orchestrationStateRelations = relations(orchestrationState, ({ one 
 export const orchestrationEventsRelations = relations(orchestrationEvents, ({ one }) => ({
   run: one(orchestrationRuns, {
     fields: [orchestrationEvents.runId],
-    references: [orchestrationRuns.id],
-  }),
-}));
-
-export const policyViolationsRelations = relations(policyViolations, ({ one }) => ({
-  run: one(orchestrationRuns, {
-    fields: [policyViolations.runId!],
     references: [orchestrationRuns.id],
   }),
 }));
@@ -210,8 +186,6 @@ export type OrchestrationEvent = typeof orchestrationEvents.$inferSelect;
 export type NewOrchestrationEvent = typeof orchestrationEvents.$inferInsert;
 export type OrchestrationPrompt = typeof orchestrationPrompts.$inferSelect;
 export type NewOrchestrationPrompt = typeof orchestrationPrompts.$inferInsert;
-export type PolicyViolation = typeof policyViolations.$inferSelect;
-export type NewPolicyViolation = typeof policyViolations.$inferInsert;
 export type OrchestrationMetric = typeof orchestrationMetrics.$inferSelect;
 export type NewOrchestrationMetric = typeof orchestrationMetrics.$inferInsert;
 export type ToolExecution = typeof toolExecutions.$inferSelect;

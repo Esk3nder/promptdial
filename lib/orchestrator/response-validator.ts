@@ -134,7 +134,6 @@ export class ResponseValidator {
       assumptions: ['LLM did not return valid JSON'],
       limitations: ['Response structure not fully analyzed'],
       confidence: 0.3,
-      refusal_reason: undefined,
       clarification_needed: undefined,
       schema_version: '1.0'
     };

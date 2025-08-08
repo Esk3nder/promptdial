@@ -23,7 +23,7 @@ import { plannerPrompt } from './prompts/planner';
 import { executorPrompt } from './prompts/executor';
 import { verifierPrompt } from './prompts/verifier';
 import { kernelPrompt } from './prompts/kernel';
-import { policyEngine } from './policy-engine';
+// import { policyEngine } from './policy-engine'; // Disabled - using model provider safety
 import { fetchWebTool } from './tools/fetch-web';
 import { generateText } from 'ai';
 import { openai } from '@ai-sdk/openai';
@@ -65,11 +65,11 @@ export class Orchestrator {
     let state: OrchestrationState = await this.loadOrInitializeState(run.id);
     
     try {
-      // Check policy violations first
-      const policyCheck = await policyEngine.checkContent(userGoal);
-      if (!policyCheck.allowed) {
-        return this.createRefusalResponse(state, policyCheck.reason);
-      }
+      // Policy checks disabled - relying on model provider safety
+      // const policyCheck = await policyEngine.checkContent(userGoal);
+      // if (!policyCheck.allowed) {
+      //   return this.createRefusalResponse(state, policyCheck.reason);
+      // }
 
       // Stage 1: Planning
       if (!state.plan || state.plan.length === 0) {
@@ -77,9 +77,10 @@ export class Orchestrator {
         state = plannerResponse.state;
         this.addEvent('plan_created', { plan: state.plan });
         
-        if (plannerResponse.next_action === 'safe_refuse') {
-          return plannerResponse;
-        }
+        // Disabled safe_refuse - let model providers handle safety
+        // if (plannerResponse.next_action === 'safe_refuse') {
+        //   return plannerResponse;
+        // }
       }
 
       // Stage 2: Execution
@@ -87,9 +88,10 @@ export class Orchestrator {
         const executorResponse = await this.runExecutor(state);
         state = executorResponse.state;
         
-        if (executorResponse.next_action === 'safe_refuse') {
-          return executorResponse;
-        }
+        // Disabled safe_refuse - let model providers handle safety
+        // if (executorResponse.next_action === 'safe_refuse') {
+        //   return executorResponse;
+        // }
         
         if (state.cursor >= state.plan.length) {
           break;
@@ -300,11 +302,7 @@ export class Orchestrator {
           finalAnswer: response.final_answer,
           totalTokens: this.tokenUsage.total 
         });
-      } else if (response.next_action === 'safe_refuse') {
-        this.addEvent('verification_failed', { 
-          reason: response.refusal_reason 
-        });
-      }
+      // Removed safe_refuse check - model providers handle safety
 
       // Add all accumulated events to response
       response.events = this.events;
@@ -386,21 +384,7 @@ export class Orchestrator {
     };
   }
 
-  private createRefusalResponse(
-    state: OrchestrationState,
-    reason: string
-  ): OrchestrationResponse {
-    this.addEvent('policy_violation', { reason });
-    
-    return {
-      ok: false,
-      state,
-      events: this.events,
-      next_action: 'safe_refuse',
-      refusal_reason: reason,
-      schema_version: 'v3'
-    };
-  }
+  // Removed createRefusalResponse - model providers handle safety
 
   private createErrorResponse(
     state: OrchestrationState,
@@ -410,8 +394,8 @@ export class Orchestrator {
       ok: false,
       state,
       events: this.events,
-      next_action: 'safe_refuse',
-      refusal_reason: `An error occurred: ${error.message}`,
+      next_action: 'done',
+      final_answer: `An error occurred: ${error.message}`,
       schema_version: 'v3'
     };
   }

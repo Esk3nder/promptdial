@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth';
 import { generateText } from 'ai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { kernelPrompt } from '@/lib/orchestrator/prompts/kernel';
-import { policyEngine } from '@/lib/orchestrator/policy-engine';
+// import { policyEngine } from '@/lib/orchestrator/policy-engine'; // Disabled - using model provider safety
 import { ResponseValidator } from '@/lib/orchestrator/response-validator';
 import { headers } from 'next/headers';
 
@@ -27,57 +27,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check policy violations
-    const policyCheck = await policyEngine.checkContent(userGoal, userId);
-    if (!policyCheck.allowed) {
-      return NextResponse.json({
-        ok: false,
-        dials: {
-          preset: 'scholar',
-          depth: 4,
-          breadth: 3,
-          verbosity: 3,
-          creativity: 2,
-          risk_tolerance: 1,
-          evidence_strictness: 4,
-          browse_aggressiveness: 3,
-          clarifying_threshold: 0.95,
-          reasoning_exposure: 'brief',
-          self_consistency_n: 3,
-          token_budget: 1800,
-          output_format: 'json'
-        },
-        state: {
-          userGoal,
-          certainty: 1.0,
-          plan: [],
-          cursor: 0,
-          completedSteps: [],
-          context: {}
-        },
-        prompt_blueprint: {
-          purpose: 'Policy violation detected',
-          instructions: [],
-          reference: [],
-          output: {}
-        },
-        events: [{
-          type: 'policy_violation',
-          data: { reason: policyCheck.reason },
-          timestamp: new Date().toISOString(),
-          sequence: 0
-        }],
-        next_action: 'safe_refuse',
-        final_answer: undefined,
-        public_rationale: 'Request violates safety policies',
-        assumptions: [],
-        limitations: [],
-        confidence: 1.0,
-        refusal_reason: policyCheck.reason,
-        clarification_needed: undefined,
-        schema_version: '1.0'
-      });
-    }
+    // Policy checks disabled - relying on model provider safety
+    // All safety constraints handled by the underlying models (Anthropic, OpenAI, etc.)
 
     // Generate plan using only the kernel prompt (which includes all necessary instructions)
     const systemPrompt = kernelPrompt;

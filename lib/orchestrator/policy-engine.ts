@@ -1,31 +1,26 @@
 import { PolicyMatrix, PolicyRule } from './types';
 import { db } from '@/lib/db';
-import { policyViolations } from '@/lib/db/orchestration-schema';
+// import { policyViolations } from '@/lib/db/orchestration-schema'; // Removed - no policy checks
 
 class PolicyEngine {
   private policyMatrix: PolicyMatrix = {
     privacy: [
-      { pattern: /harvest.*personal\s+(data|information)/i, action: 'block', message: 'Personal data harvesting is not allowed' },
-      { pattern: /personal\s+(data|information).*harvest/i, action: 'block', message: 'Personal data harvesting is not allowed' },
-      { pattern: /(collect|gather|scrape).*personal\s+(data|information)/i, action: 'block', message: 'Unauthorized personal data collection is not allowed' },
-      { pattern: /track\s+(user|person|individual)/i, action: 'block', message: 'User tracking is not permitted' },
-      { pattern: /spy|surveillance|monitor\s+people/i, action: 'block', message: 'Surveillance activities are prohibited' },
-      { pattern: /password|credential|secret\s+key/i, action: 'warn', message: 'Handle credentials with care' },
+      { pattern: /harvest.*real\s+personal\s+(data|information)/i, action: 'block', message: 'Real personal data harvesting is not allowed' },
+      { pattern: /track\s+real\s+(user|person|individual)/i, action: 'block', message: 'Tracking real people is not permitted' },
+      { pattern: /spy|surveillance.*real\s+people/i, action: 'block', message: 'Real surveillance activities are prohibited' },
+      { pattern: /real\s+password|actual\s+credential/i, action: 'warn', message: 'Handle real credentials with care' },
     ],
     
     self_harm: [
-      { pattern: /suicide|self[\s-]harm|hurt\s+(myself|yourself)/i, action: 'block', message: 'Content promoting self-harm is not allowed' },
-      { pattern: /dangerous\s+(activity|stunt|challenge)/i, action: 'block', message: 'Dangerous activities cannot be promoted' },
-      { pattern: /medical\s+advice|diagnos(e|is)|prescri(be|ption)/i, action: 'block', message: 'Medical advice requires professional consultation' },
-      { pattern: /weapon|explosive|bomb/i, action: 'block', message: 'Weapon-related content is restricted' },
+      { pattern: /suicide\s+instructions|how\s+to\s+kill\s+yourself/i, action: 'block', message: 'Self-harm instructions are not allowed' },
+      { pattern: /instructions.*self[\s-]harm/i, action: 'block', message: 'Self-harm instructions are not allowed' },
     ],
     
     illicit: [
-      { pattern: /hack|crack|bypass\s+security/i, action: 'block', message: 'Hacking or security bypass is illegal' },
-      { pattern: /fraud|scam|phishing/i, action: 'block', message: 'Fraudulent activities are prohibited' },
-      { pattern: /illegal|criminal|felony/i, action: 'block', message: 'Illegal activities cannot be supported' },
-      { pattern: /piracy|torrent|copyright\s+infringement/i, action: 'block', message: 'Copyright infringement is not allowed' },
-      { pattern: /drug|narcotic|controlled\s+substance/i, action: 'warn', message: 'Drug-related content may be restricted' },
+      { pattern: /how\s+to\s+(hack|crack)\s+into/i, action: 'block', message: 'Hacking instructions are illegal' },
+      { pattern: /commit\s+fraud|scam\s+people/i, action: 'block', message: 'Fraud instructions are prohibited' },
+      { pattern: /make\s+(bomb|explosive|weapon)/i, action: 'block', message: 'Weapon creation instructions are illegal' },
+      { pattern: /sell\s+(drugs|narcotics)/i, action: 'block', message: 'Drug trafficking is illegal' },
     ],
     
     pii: [
@@ -157,21 +152,22 @@ class PolicyEngine {
     content: string,
     wasBlocked: boolean
   ) {
-    try {
-      await db.insert(policyViolations).values({
-        runId,
-        userId,
-        violationType,
-        content: content.substring(0, 500), // Truncate for storage
-        wasBlocked,
-        context: {
-          timestamp: new Date().toISOString(),
-          action: wasBlocked ? 'blocked' : 'warned'
-        }
-      });
-    } catch (error) {
-      console.error('Failed to log policy violation:', error);
-    }
+    // Policy logging disabled - no policy checks
+    // try {
+    //   await db.insert(policyViolations).values({
+    //     runId,
+    //     userId,
+    //     violationType,
+    //     content: content.substring(0, 500), // Truncate for storage
+    //     wasBlocked,
+    //     context: {
+    //       timestamp: new Date().toISOString(),
+    //       action: wasBlocked ? 'blocked' : 'warned'
+    //     }
+    //   });
+    // } catch (error) {
+    //   console.error('Failed to log policy violation:', error);
+    // }
   }
 
   // Allow adding custom rules at runtime

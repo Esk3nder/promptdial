@@ -1,10 +1,10 @@
 -- Create enums for orchestration
-CREATE TYPE orchestration_status AS ENUM ('planning', 'executing', 'verifying', 'completed', 'failed', 'refused');
-CREATE TYPE next_action AS ENUM ('execute', 'done', 'safe_refuse', 'clarify');
+CREATE TYPE orchestration_status AS ENUM ('planning', 'executing', 'verifying', 'completed', 'failed');
+CREATE TYPE next_action AS ENUM ('execute', 'done', 'clarify');
 CREATE TYPE event_type AS ENUM (
   'plan_created', 'step_started', 'step_completed', 
   'tool_called', 'tool_response', 'verification_started',
-  'verification_passed', 'verification_failed', 'policy_violation',
+  'verification_passed', 'verification_failed',
   'error', 'warning'
 );
 
@@ -27,7 +27,6 @@ CREATE TABLE orchestration_runs (
   
   -- Results
   final_answer TEXT,
-  refusal_reason TEXT,
   
   -- Metrics
   llm_call_count INTEGER DEFAULT 0,
@@ -73,18 +72,6 @@ CREATE TABLE orchestration_prompts (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- Policy violations tracking
-CREATE TABLE policy_violations (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  run_id UUID REFERENCES orchestration_runs(id) ON DELETE CASCADE,
-  user_id TEXT NOT NULL,
-  violation_type TEXT NOT NULL,
-  content TEXT,
-  context JSONB,
-  was_blocked BOOLEAN DEFAULT true,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
 -- Orchestration metrics for monitoring
 CREATE TABLE orchestration_metrics (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -94,7 +81,6 @@ CREATE TABLE orchestration_metrics (
   task_completion_success BOOLEAN,
   total_tokens INTEGER,
   clarification_loops INTEGER,
-  policy_violation_escaped BOOLEAN DEFAULT false,
   user_satisfaction_rating REAL,
   
   -- Additional performance metrics
@@ -133,7 +119,6 @@ CREATE INDEX idx_orchestration_runs_user_id ON orchestration_runs(user_id);
 CREATE INDEX idx_orchestration_runs_status ON orchestration_runs(status);
 CREATE INDEX idx_orchestration_state_run_id ON orchestration_state(run_id);
 CREATE INDEX idx_orchestration_events_run_id ON orchestration_events(run_id);
-CREATE INDEX idx_policy_violations_user_id ON policy_violations(user_id);
 CREATE INDEX idx_orchestration_metrics_run_id ON orchestration_metrics(run_id);
 CREATE INDEX idx_tool_executions_run_id ON tool_executions(run_id);
 

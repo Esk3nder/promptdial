@@ -69,8 +69,6 @@ export function OrchestrationInterface({ userId }: OrchestrationInterfaceProps) 
     switch (status) {
       case 'done':
         return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-      case 'safe_refuse':
-        return <XCircle className="h-4 w-4 text-red-500" />;
       case 'execute':
         return <Loader2 className="h-4 w-4 animate-spin" />;
       case 'clarify':

@@ -60,11 +60,10 @@ export type EventType =
   | 'verification_started'
   | 'verification_passed'
   | 'verification_failed'
-  | 'policy_violation'
   | 'error'
   | 'warning';
 
-export type NextAction = 'execute' | 'done' | 'safe_refuse' | 'clarify';
+export type NextAction = 'execute' | 'done' | 'clarify';
 
 // Prompt Dial Settings
 export interface PromptDials {
@@ -105,7 +104,6 @@ export interface OrchestrationResponse {
   assumptions?: string[];
   limitations?: string[];
   confidence: number;
-  refusal_reason?: string;
   clarification_needed?: string;
   schema_version: string;
 }
