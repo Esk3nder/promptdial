@@ -1,7 +1,8 @@
-// JSON Wire Protocol Schema v3 Types
+// JSON Wire Protocol Schema Types (Academic-Grade Prompt Synthesizer)
 
 export interface OrchestrationState {
   userGoal: string;
+  certainty: number;
   plan: PlanStep[];
   cursor: number;
   completedSteps: CompletedStep[];
@@ -65,16 +66,48 @@ export type EventType =
 
 export type NextAction = 'execute' | 'done' | 'safe_refuse' | 'clarify';
 
+// Prompt Dial Settings
+export interface PromptDials {
+  preset: 'laser' | 'scholar' | 'builder' | 'strategist' | 'socratic' | 'brainstorm' | 'pm' | 'analyst';
+  depth: number;
+  breadth: number;
+  verbosity: number;
+  creativity: number;
+  risk_tolerance: number;
+  evidence_strictness: number;
+  browse_aggressiveness: number;
+  clarifying_threshold: number;
+  reasoning_exposure: 'none' | 'brief' | 'outline';
+  self_consistency_n: number;
+  token_budget: number;
+  output_format: 'markdown' | 'json' | 'hybrid';
+}
+
+// Prompt Blueprint
+export interface PromptBlueprint {
+  purpose: string;
+  instructions: string[];
+  reference: string[];
+  output: Record<string, any>;
+}
+
 // Main JSON Wire Response Schema
 export interface OrchestrationResponse {
   ok: boolean;
+  dials: PromptDials;
   state: OrchestrationState;
+  prompt_blueprint: PromptBlueprint;
+  synthesized_prompt?: string;
   events: OrchestrationEvent[];
   next_action: NextAction;
   final_answer?: string;
+  public_rationale?: string;
+  assumptions?: string[];
+  limitations?: string[];
+  confidence: number;
   refusal_reason?: string;
   clarification_needed?: string;
-  schema_version: 'v3';
+  schema_version: string;
 }
 
 // LLM Call Types
