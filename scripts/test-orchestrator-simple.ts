@@ -83,7 +83,6 @@ const mockResponse = {
   ],
   next_action: 'execute' as const,
   final_answer: undefined,
-  refusal_reason: undefined,
   clarification_needed: undefined,
   schema_version: 'v3' as const
 };

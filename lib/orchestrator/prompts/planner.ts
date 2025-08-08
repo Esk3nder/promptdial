@@ -28,7 +28,6 @@ PLANNING CHECKLIST:
 RESPONSE REQUIREMENTS:
 - Set next_action to "execute" if plan is valid
 - Set next_action to "clarify" if more information needed
-- Set next_action to "safe_refuse" if goal violates policies
 - Include clarification_needed if asking questions
 
 EXAMPLE PLANS:
