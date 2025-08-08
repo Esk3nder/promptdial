@@ -302,6 +302,7 @@ export class Orchestrator {
           finalAnswer: response.final_answer,
           totalTokens: this.tokenUsage.total 
         });
+      }
       // Removed safe_refuse check - model providers handle safety
 
       // Add all accumulated events to response
