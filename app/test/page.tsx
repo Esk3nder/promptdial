@@ -19,7 +19,7 @@ export default function TestAnthropicPage() {
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [fullTestMode, setFullTestMode] = useState(false);
+  const [fullTestMode, setFullTestMode] = useState(true);
   const [orchestratorResponse, setOrchestratorResponse] = useState<OrchestrationResponse | null>(null);
   const [events, setEvents] = useState<OrchestrationEvent[]>([]);
 
@@ -89,15 +89,15 @@ export default function TestAnthropicPage() {
         <div className="lg:sticky lg:top-8 lg:self-start">
           <Card>
             <CardHeader>
-              <CardTitle>API Configuration</CardTitle>
-              <CardDescription>Test the Academic-Grade Prompt Synthesizer with different models</CardDescription>
+              <CardTitle>Prompt Synthesizer Configuration</CardTitle>
+              <CardDescription>Test the Academic-Grade Prompt Synthesizer (toggle off for direct API)</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label htmlFor="full-test" className="flex flex-col space-y-1">
-                  <span>Full Test Mode</span>
+                  <span>Orchestrator Mode</span>
                   <span className="text-sm text-muted-foreground font-normal">
-                    Test through the orchestrator flow instead of direct API
+                    Toggle OFF to test direct API only (useful if orchestrator fails)
                   </span>
                 </Label>
                 <Switch
