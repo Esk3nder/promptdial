@@ -8,7 +8,6 @@ import { getProviderModel, isProviderConfigured } from './provider-config';
 // Note: Each provider should use their native search capabilities
 // - OpenAI: Uses responses API with web_search_preview tool
 // - Google: Uses search grounding with google_search_retrieval
-// - Perplexity: Has built-in web search
 // - Anthropic: No native web search (uses base knowledge only)
 
 // ============================================
@@ -21,7 +20,7 @@ export async function analyzeBrandWithProviderSearch(
   brandName: string,
   competitors: string[],
   prompt: string,
-  provider: 'openai' | 'anthropic' | 'google' | 'perplexity' = 'openai'
+  provider: 'openai' | 'anthropic' | 'google' = 'openai'
 ) {
   // This function is now handled by ai-utils-enhanced.ts
   // which properly uses each provider's native search capabilities
@@ -34,7 +33,7 @@ export async function analyzeBrandWithProviderSearch(
 // Note on Provider-Native Search Capabilities
 // ============================================
 // Each provider should use their own search capabilities:
-// 
+//
 // OpenAI with Web Search:
 //   - Use openai.responses('gpt-4o-mini') with web_search_preview tool
 //   - Only gpt-4o-mini supports web search via responses API
@@ -42,10 +41,6 @@ export async function analyzeBrandWithProviderSearch(
 // Google with Search Grounding:
 //   - Use { useSearchGrounding: true } option
 //   - Automatically includes web search results
-//
-// Perplexity:
-//   - All models have built-in web search
-//   - No additional configuration needed
 //
 // Anthropic:
 //   - No native web search capability
@@ -65,7 +60,6 @@ export async function analyzeBrandWithProviderSearch(
 // Web search functionality has been moved to provider-specific implementations:
 // - OpenAI: Uses responses API with web_search_preview (in ai-utils-enhanced.ts)
 // - Google: Uses search grounding (in provider-config.ts)
-// - Perplexity: Built-in web search (no special config needed)
 // - Anthropic: No web search (base knowledge only)
 //
 // Firecrawl should ONLY be used for initial website scraping in scrape-utils.ts

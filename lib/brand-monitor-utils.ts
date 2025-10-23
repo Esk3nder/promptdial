@@ -98,7 +98,6 @@ export function assignUrlToCompetitor(competitorName: string): string | undefine
     'microsoft azure': 'azure.microsoft.com',
     'ibm watson': 'ibm.com/watson',
     'amazon aws': 'aws.amazon.com',
-    'perplexity': 'perplexity.ai',
     'claude': 'anthropic.com',
     'chatgpt': 'openai.com',
     'gemini': 'gemini.google.com',

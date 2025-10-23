@@ -4,7 +4,7 @@ interface EnvConfig {
   NEXT_PUBLIC_APP_URL: string;
   AUTUMN_SECRET_KEY: string;
   NODE_ENV: 'development' | 'production' | 'test';
-  
+
   STRIPE_SECRET_KEY?: string;
   STRIPE_PUBLISHABLE_KEY?: string;
   STRIPE_WEBHOOK_SECRET?: string;
@@ -12,7 +12,6 @@ interface EnvConfig {
   OPENAI_API_KEY?: string;
   ANTHROPIC_API_KEY?: string;
   GOOGLE_GENERATIVE_AI_API_KEY?: string;
-  PERPLEXITY_API_KEY?: string;
   FIRECRAWL_API_KEY?: string;
 }
 
@@ -45,7 +44,7 @@ export function validateEnv(): EnvConfig {
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL!,
     AUTUMN_SECRET_KEY: process.env.AUTUMN_SECRET_KEY!,
     NODE_ENV: (process.env.NODE_ENV as EnvConfig['NODE_ENV']) || 'development',
-    
+
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
@@ -53,7 +52,6 @@ export function validateEnv(): EnvConfig {
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
     GOOGLE_GENERATIVE_AI_API_KEY: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-    PERPLEXITY_API_KEY: process.env.PERPLEXITY_API_KEY,
     FIRECRAWL_API_KEY: process.env.FIRECRAWL_API_KEY,
   };
 }
