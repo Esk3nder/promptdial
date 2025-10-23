@@ -73,7 +73,6 @@ export const MODEL_MAX_TOKENS = {
   'gpt-4': 127000,
   'gpt-4o': 127000,
   'gpt-4o-mini': 127000,
-  'perplexity-sonar': 32000,
 } as const;
 
 // Rate limits (requests per minute)
@@ -87,7 +86,6 @@ export const MODEL_RATE_LIMITS = {
   'gpt-4': 50,
   'gpt-4o': 60,
   'gpt-4o-mini': 60,
-  'perplexity-sonar': 20,
 } as const;
 
 // ============================================
@@ -222,7 +220,6 @@ export const AI_MODELS = {
   CLAUDE_HAIKU: 'claude-3-5-haiku-latest',
   GEMINI_FLASH: 'gemini-2.0-flash-exp',
   GPT_4O_MINI: 'gpt-4o-mini',
-  PERPLEXITY_SONAR: 'sonar',
 } as const;
 
 // ============================================

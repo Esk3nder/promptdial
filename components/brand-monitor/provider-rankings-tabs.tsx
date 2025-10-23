@@ -39,14 +39,6 @@ const getProviderIcon = (provider: string) => {
           </svg>
         </div>
       );
-    case 'Perplexity':
-      return (
-        <img 
-          src="https://cdn.brandfetch.io/idNdawywEZ/w/800/h/800/theme/dark/icon.png?c=1dxbfHSJFAPEGdCLU4o5B" 
-          alt="Perplexity" 
-          className="w-6 h-6"
-        />
-      );
     default:
       return <div className="w-7 h-7 bg-gray-400 rounded" />;
   }

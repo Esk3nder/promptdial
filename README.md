@@ -140,7 +140,7 @@ npm run lint             # Run ESLint
 | **Database** | PostgreSQL, Drizzle ORM |
 | **Authentication** | Better Auth |
 | **Payments** | Autumn (with Stripe integration) |
-| **AI Providers** | OpenAI, Anthropic, Google Gemini, Perplexity |
+| **AI Providers** | OpenAI, Anthropic, Google Gemini |
 | **Email** | Resend |
 
 ## Project Structure
@@ -238,7 +238,6 @@ Get your API keys from the following providers:
 - **OpenAI**: [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys) → Copy to `OPENAI_API_KEY`
 - **Anthropic (Claude)**: [https://console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys) → Copy to `ANTHROPIC_API_KEY`
 - **Google AI (Gemini)**: [https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey) → Copy to `GOOGLE_GENERATIVE_AI_API_KEY`
-- **Perplexity**: [https://www.perplexity.ai/settings/api](https://www.perplexity.ai/settings/api) → Copy to `PERPLEXITY_API_KEY`
 
 ### 2. Initialize & Run
 
@@ -276,7 +275,6 @@ EMAIL_FROM=                # Your email address
 # AI Providers (add what you need)
 OPENAI_API_KEY=
 ANTHROPIC_API_KEY=
-PERPLEXITY_API_KEY=
 GOOGLE_GENERATIVE_AI_API_KEY=
 ```
 

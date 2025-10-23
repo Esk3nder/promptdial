@@ -31,7 +31,7 @@ function cleanResponseText(text: string, providerName?: string): string {
   }
   
   // Remove common provider names at the beginning
-  const commonProviders = ['OpenAI', 'Anthropic', 'Google', 'Perplexity'];
+  const commonProviders = ['OpenAI', 'Anthropic', 'Google'];
   commonProviders.forEach(provider => {
     const pattern = new RegExp(`^${provider}\\s*\n?`, 'i');
     cleaned = cleaned.replace(pattern, '');

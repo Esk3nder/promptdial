@@ -36,7 +36,7 @@ This is a Next.js 15 SaaS application with the following core architecture:
 - **Database**: PostgreSQL with Drizzle ORM
 - **Authentication**: Better Auth with email/password
 - **Payments**: Autumn.js (Stripe integration)
-- **AI Providers**: OpenAI, Anthropic, Google Gemini, Perplexity
+- **AI Providers**: OpenAI, Anthropic, Google Gemini
 - **Web Scraping**: Firecrawl
 - **Email**: Resend
 
@@ -77,7 +77,7 @@ promptdial/
 
 ### AI Provider System
 - Centralized provider configuration in `lib/provider-config.ts`
-- Supports multiple AI providers (OpenAI, Anthropic, Google, Perplexity)
+- Supports multiple AI providers (OpenAI, Anthropic, Google)
 - Provider availability determined by API keys and enabled status
 - Models configurable per provider with capabilities mapping
 

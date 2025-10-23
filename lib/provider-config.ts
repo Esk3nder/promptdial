@@ -15,7 +15,6 @@
 import { openai } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { google } from '@ai-sdk/google';
-import { perplexity } from '@ai-sdk/perplexity';
 import { LanguageModelV1 } from 'ai';
 
 export interface ProviderModel {
@@ -57,7 +56,6 @@ export const PROVIDER_ENABLED_CONFIG: Record<string, boolean> = {
   openai: true,      // OpenAI is enabled
   anthropic: true,   // Anthropic is enabled
   google: false,     // Google is disabled
-  perplexity: true,  // Perplexity is enabled
 };
 
 /**
@@ -214,45 +212,6 @@ export const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
     },
     isConfigured: () => !!process.env.GOOGLE_GENERATIVE_AI_API_KEY,
   },
-
-  perplexity: {
-    id: 'perplexity',
-    name: 'Perplexity',
-    icon: '🔍',
-    envKey: 'PERPLEXITY_API_KEY',
-    enabled: PROVIDER_ENABLED_CONFIG.perplexity,
-    models: [
-      {
-        id: 'sonar-pro',
-        name: 'Sonar Pro',
-        maxTokens: 127000,
-        supportsFunctionCalling: false,
-        supportsStructuredOutput: false,
-        supportsWebSearch: true, // Built-in web search
-      },
-      {
-        id: 'sonar',
-        name: 'Sonar',
-        maxTokens: 127000,
-        supportsFunctionCalling: false,
-        supportsStructuredOutput: false,
-        supportsWebSearch: true,
-      },
-    ],
-    defaultModel: 'sonar-pro',
-    capabilities: {
-      webSearch: true, // All models have built-in web search
-      functionCalling: false,
-      structuredOutput: false,
-      streamingResponse: true,
-      maxRequestsPerMinute: 20,
-    },
-    getModel: (modelId?: string) => {
-      if (!process.env.PERPLEXITY_API_KEY) return null;
-      return perplexity(modelId || PROVIDER_CONFIGS.perplexity.defaultModel);
-    },
-    isConfigured: () => !!process.env.PERPLEXITY_API_KEY,
-  },
 };
 
 /**
@@ -320,7 +279,6 @@ export const PROVIDER_NAME_MAP: Record<string, string> = {
   'OpenAI': 'openai',
   'Anthropic': 'anthropic',
   'Google': 'google',
-  'Perplexity': 'perplexity',
   // Add more mappings as needed
 };
 

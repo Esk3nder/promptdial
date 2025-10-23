@@ -549,7 +549,6 @@ Return a simple analysis:
     const providerDisplayName = provider === 'openai' ? 'OpenAI' :
                                provider === 'anthropic' ? 'Anthropic' :
                                provider === 'google' ? 'Google' :
-                               provider === 'perplexity' ? 'Perplexity' :
                                provider; // fallback to original
     
     // Debug log for Google responses
@@ -964,7 +963,6 @@ function generateMockResponse(
   const providerDisplayName = provider === 'openai' ? 'OpenAI' :
                              provider === 'anthropic' ? 'Anthropic' :
                              provider === 'google' ? 'Google' :
-                             provider === 'perplexity' ? 'Perplexity' :
                              provider; // fallback to original
 
   return {

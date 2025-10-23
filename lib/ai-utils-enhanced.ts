@@ -182,7 +182,6 @@ Be very thorough in detecting company names - they might appear in different con
     const providerDisplayName = provider === 'openai' ? 'OpenAI' :
                                provider === 'anthropic' ? 'Anthropic' :
                                provider === 'google' ? 'Google' :
-                               provider === 'perplexity' ? 'Perplexity' :
                                provider; // fallback to original
 
     return {
@@ -217,7 +216,6 @@ function generateMockResponse(
   const providerDisplayName = provider === 'openai' ? 'OpenAI' :
                              provider === 'anthropic' ? 'Anthropic' :
                              provider === 'google' ? 'Google' :
-                             provider === 'perplexity' ? 'Perplexity' :
                              provider; // fallback to original
   
   return {
