@@ -57,16 +57,16 @@ export function Navbar() {
             {session && (
               <>
                 <Link
-                  href="/orchestrator"
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+                  href="/dial"
+                  className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg hover:from-blue-700 hover:to-purple-700"
                 >
-                  Orchestrator
+                  Dial In
                 </Link>
                 <Link
-                  href="/chat"
+                  href="/history"
                   className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
                 >
-                  Chat
+                  My Prompts
                 </Link>
               </>
             )}

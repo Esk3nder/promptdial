@@ -1,22 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSessionCookie } from 'better-auth/cookies';
 
-// Define protected routes
-const protectedRoutes = ['/dashboard', '/chat', '/brand-monitor'];
+// Define protected routes - updated for new structure
+const protectedRoutes = ['/dashboard', '/dial', '/history'];
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  
+
   // Check if the route is protected
-  const isProtectedRoute = protectedRoutes.some(route => 
+  const isProtectedRoute = protectedRoutes.some(route =>
     pathname.startsWith(route)
   );
 
   if (isProtectedRoute) {
-    // Check for session cookie
-    const sessionCookie = await getSessionCookie(request);
-    
-    if (!sessionCookie) {
+    // Check for session cookie using simple cookie parsing
+    // better-auth uses 'better-auth.session_token' cookie name
+    const sessionCookie = request.cookies.get('better-auth.session_token');
+
+    if (!sessionCookie?.value) {
       // Redirect to login with return URL
       const url = new URL('/login', request.url);
       url.searchParams.set('from', pathname);
