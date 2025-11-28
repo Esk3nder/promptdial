@@ -4,16 +4,23 @@ import { Autumn } from 'autumn-js';
 import { db } from '@/lib/db';
 import { conversations, messages } from '@/lib/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
-import { 
-  AuthenticationError, 
-  InsufficientCreditsError, 
-  ValidationError, 
-  DatabaseError,
+import { generateText } from 'ai';
+import { getProviderModel } from '@/lib/provider-config';
+import {
+  getConversationHistory,
+  formatMessagesForLLM,
+  CHAT_SYSTEM_PROMPT,
+  CHAT_CONFIG
+} from '@/lib/chat-utils';
+import {
+  AuthenticationError,
+  InsufficientCreditsError,
+  ValidationError,
   ExternalServiceError,
-  handleApiError 
+  handleApiError
 } from '@/lib/api-errors';
-import { 
-  FEATURE_ID_MESSAGES, 
+import {
+  FEATURE_ID_MESSAGES,
   CREDITS_PER_MESSAGE,
   ERROR_MESSAGES,
   ROLE_USER,
@@ -126,36 +133,91 @@ export async function POST(request: NextRequest) {
     }
 
     // Store user message
-    const [userMessage] = await db
+    await db
       .insert(messages)
       .values({
         conversationId: currentConversation.id,
         userId: sessionResponse.user.id,
         role: ROLE_USER,
         content: message,
-      })
-      .returning();
+      });
 
-    // Simple mock AI response
-    const responses = [
-      "I understand you're asking about " + message.substring(0, 20) + ". Here's what I think...",
-      "That's an interesting question! Let me help you with that.",
-      "Based on what you're saying, I can suggest the following approach...",
-      "Thanks for your message! Here's my response to your query.",
-      "I'm here to help! Regarding your question about " + message.substring(0, 15) + "...",
-    ];
+    // Get conversation history for context (excluding the just-inserted message)
+    const conversationHistory = await getConversationHistory(
+      currentConversation.id,
+      sessionResponse.user.id,
+      { maxMessages: CHAT_CONFIG.maxContextMessages }
+    );
 
-    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+    // Format messages for LLM (exclude the just-inserted user message since we'll add it fresh)
+    const historyWithoutCurrent = conversationHistory.filter(
+      msg => !(msg.role === 'user' && msg.content === message)
+    );
+    const llmMessages = formatMessagesForLLM(historyWithoutCurrent, message);
 
-    // Store AI response
+    // Get provider (prefer Anthropic, fallback to OpenAI)
+    const model = getProviderModel('anthropic') || getProviderModel('openai');
+    if (!model) {
+      throw new ExternalServiceError('No AI provider configured. Please check API keys.', 'llm');
+    }
+
+    console.log('Chat API - Generating response with LLM...');
+
+    // Generate real AI response
+    let aiResponse: string;
+    let tokenCount: number | null = null;
+
+    try {
+      const result = await generateText({
+        model,
+        system: CHAT_SYSTEM_PROMPT,
+        messages: llmMessages,
+        maxTokens: CHAT_CONFIG.defaultMaxTokens,
+        temperature: CHAT_CONFIG.defaultTemperature,
+      });
+
+      aiResponse = result.text;
+      tokenCount = result.usage?.totalTokens || null;
+
+      console.log('Chat API - LLM response generated:', {
+        responseLength: aiResponse.length,
+        tokensUsed: tokenCount,
+      });
+    } catch (llmError: any) {
+      console.error('Chat API - LLM generation failed:', llmError);
+
+      // Try fallback provider if primary fails
+      const fallbackModel = getProviderModel('openai') || getProviderModel('anthropic');
+      if (fallbackModel && fallbackModel !== model) {
+        console.log('Chat API - Trying fallback provider...');
+        try {
+          const fallbackResult = await generateText({
+            model: fallbackModel,
+            system: CHAT_SYSTEM_PROMPT,
+            messages: llmMessages,
+            maxTokens: CHAT_CONFIG.defaultMaxTokens,
+            temperature: CHAT_CONFIG.defaultTemperature,
+          });
+          aiResponse = fallbackResult.text;
+          tokenCount = fallbackResult.usage?.totalTokens || null;
+        } catch (fallbackError) {
+          console.error('Chat API - Fallback provider also failed:', fallbackError);
+          throw new ExternalServiceError('AI service temporarily unavailable. Please try again.', 'llm');
+        }
+      } else {
+        throw new ExternalServiceError('AI service temporarily unavailable. Please try again.', 'llm');
+      }
+    }
+
+    // Store AI response with token count
     const [aiMessage] = await db
       .insert(messages)
       .values({
         conversationId: currentConversation.id,
         userId: sessionResponse.user.id,
         role: ROLE_ASSISTANT,
-        content: randomResponse,
-        tokenCount: randomResponse.length, // Simple token count estimate
+        content: aiResponse,
+        tokenCount: tokenCount,
       })
       .returning();
 
@@ -172,7 +234,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
-      response: randomResponse,
+      response: aiResponse,
       remainingCredits,
       creditsUsed: CREDITS_PER_MESSAGE,
       conversationId: currentConversation.id,
