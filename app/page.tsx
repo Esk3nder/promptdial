@@ -19,20 +19,20 @@ export default function Home() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-5xl lg:text-7xl font-bold tracking-tight mb-8 animate-fade-in-up">
-              <span className="block text-zinc-900">PromptDial</span>
+              <span className="block text-zinc-900">Turn Lazy Prompts into</span>
               <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                AI Orchestration Platform
+                Powerful Results
               </span>
             </h1>
             <p className="text-xl lg:text-2xl text-zinc-600 max-w-3xl mx-auto mb-6 animate-fade-in-up animation-delay-200">
-              Intelligent LLM routing, conversation management, and cost optimization
+              Write better AI prompts in seconds. Copy or run instantly in ChatGPT, Claude, or Gemini.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-400">
               <Link
-                href="/products"
+                href="/dial"
                 className="btn-firecrawl-orange inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] text-base font-medium transition-all duration-200 h-12 px-8"
               >
-                Try It Now
+                Dial In Your Prompt
               </Link>
               <Link
                 href="/plans"
@@ -42,28 +42,28 @@ export default function Home() {
               </Link>
             </div>
             <p className="mt-6 text-sm text-zinc-500 animate-fade-in-up animation-delay-600">
-              Smart Routing • Cost Optimization • Provider Switching • Context Management
+              Prompt Optimization • Web Research (Premium) • Multi-Provider Support • Copy & Run
             </p>
           </div>
 
-          {/* Stats */}
+          {/* Features */}
           <div className="mt-20 bg-zinc-900 rounded-[20px] p-12 animate-fade-in-scale animation-delay-800">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
               <div className="text-center animate-fade-in-up animation-delay-1000">
-                <div className="text-4xl font-bold text-white">Multi-LLM</div>
-                <div className="text-sm text-zinc-400 mt-1">OpenAI, Claude, Gemini</div>
+                <div className="text-4xl font-bold text-white">10x</div>
+                <div className="text-sm text-zinc-400 mt-1">Better Prompts</div>
               </div>
               <div className="text-center animate-fade-in-up animation-delay-1000" style={{animationDelay: '1100ms'}}>
-                <div className="text-4xl font-bold text-white">Smart</div>
-                <div className="text-sm text-zinc-400 mt-1">Routing</div>
+                <div className="text-4xl font-bold text-white">3</div>
+                <div className="text-sm text-zinc-400 mt-1">AI Providers</div>
               </div>
               <div className="text-center animate-fade-in-up animation-delay-1000" style={{animationDelay: '1200ms'}}>
-                <div className="text-4xl font-bold text-white">Cost</div>
-                <div className="text-sm text-zinc-400 mt-1">Optimization</div>
+                <div className="text-4xl font-bold text-white">Deep</div>
+                <div className="text-sm text-zinc-400 mt-1">Web Research</div>
               </div>
               <div className="text-center animate-fade-in-up animation-delay-1000" style={{animationDelay: '1300ms'}}>
-                <div className="text-4xl font-bold text-white">Context</div>
-                <div className="text-sm text-zinc-400 mt-1">Aware</div>
+                <div className="text-4xl font-bold text-white">1-Click</div>
+                <div className="text-sm text-zinc-400 mt-1">Copy & Run</div>
               </div>
             </div>
           </div>
