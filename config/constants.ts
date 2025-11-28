@@ -23,6 +23,14 @@ export const STARTER_TIER_MESSAGES = 1000;
 export const PRO_TIER_MESSAGES = 10000;
 
 // ============================================
+// Chat Configuration
+// ============================================
+export const CHAT_MAX_CONTEXT_MESSAGES = 10;
+export const CHAT_MAX_CONTEXT_TOKENS = 4000;
+export const CHAT_DEFAULT_MAX_TOKENS = 1024;
+export const CHAT_DEFAULT_TEMPERATURE = 0.7;
+
+// ============================================
 // Time Constants (in milliseconds unless specified)
 // ============================================
 export const ONE_MINUTE = 60 * 1000;
