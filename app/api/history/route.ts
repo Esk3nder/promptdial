@@ -28,11 +28,18 @@ import {
   UI_LIMITS
 } from '@/config/constants';
 
-const autumn = new Autumn({
-  secretKey: process.env.AUTUMN_SECRET_KEY!,
-});
+// Prevent static generation - API routes should be dynamic
+export const dynamic = 'force-dynamic';
+
+// Helper to create Autumn client lazily
+function getAutumnClient() {
+  return new Autumn({
+    secretKey: process.env.AUTUMN_SECRET_KEY!,
+  });
+}
 
 export async function POST(request: NextRequest) {
+  const autumn = getAutumnClient();
   try {
     // Get the session
     const sessionResponse = await auth.api.getSession({

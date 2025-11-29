@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { generateText } from 'ai';
-import { anthropic } from '@ai-sdk/anthropic';
+import { createAnthropic } from '@ai-sdk/anthropic';
 import { kernelPrompt } from '@/lib/dial/kernel';
 import { ResponseValidator } from '@/lib/dial/response-validator';
 import { headers } from 'next/headers';
+
+// Prevent static generation - API routes should be dynamic
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
@@ -43,6 +46,9 @@ export async function POST(req: NextRequest) {
     });
     console.log('User Prompt:', userPrompt);
     
+    // Create Anthropic client lazily to avoid build-time API key validation
+    const anthropic = createAnthropic();
+
     const { text, usage } = await generateText({
       model: anthropic('claude-3-5-sonnet-20241022'),
       system: systemPrompt,

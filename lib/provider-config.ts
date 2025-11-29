@@ -12,10 +12,36 @@
  * - Valid API key in environment variables
  */
 
-import { openai } from '@ai-sdk/openai';
-import { anthropic } from '@ai-sdk/anthropic';
-import { google } from '@ai-sdk/google';
+import { createOpenAI } from '@ai-sdk/openai';
+import { createAnthropic } from '@ai-sdk/anthropic';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { LanguageModelV1 } from 'ai';
+
+// Lazy provider instances to avoid build-time API key validation
+let openaiInstance: ReturnType<typeof createOpenAI> | null = null;
+let anthropicInstance: ReturnType<typeof createAnthropic> | null = null;
+let googleInstance: ReturnType<typeof createGoogleGenerativeAI> | null = null;
+
+function getOpenAI() {
+  if (!openaiInstance) {
+    openaiInstance = createOpenAI();
+  }
+  return openaiInstance;
+}
+
+function getAnthropic() {
+  if (!anthropicInstance) {
+    anthropicInstance = createAnthropic();
+  }
+  return anthropicInstance;
+}
+
+function getGoogle() {
+  if (!googleInstance) {
+    googleInstance = createGoogleGenerativeAI();
+  }
+  return googleInstance;
+}
 
 export interface ProviderModel {
   id: string;
@@ -106,12 +132,13 @@ export const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
     getModel: (modelId?: string, options?: any) => {
       if (!process.env.OPENAI_API_KEY) return null;
       const model = modelId || PROVIDER_CONFIGS.openai.defaultModel;
-      
+      const openai = getOpenAI();
+
       // Use responses API for web search if requested
       if (options?.useWebSearch && model === 'gpt-4o-mini') {
         return openai.responses(model);
       }
-      
+
       return openai(model);
     },
     isConfigured: () => !!process.env.OPENAI_API_KEY,
@@ -159,6 +186,7 @@ export const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
     },
     getModel: (modelId?: string) => {
       if (!process.env.ANTHROPIC_API_KEY) return null;
+      const anthropic = getAnthropic();
       return anthropic(modelId || PROVIDER_CONFIGS.anthropic.defaultModel);
     },
     isConfigured: () => !!process.env.ANTHROPIC_API_KEY,
@@ -206,6 +234,7 @@ export const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
     },
     getModel: (modelId?: string, options?: any) => {
       if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) return null;
+      const google = getGoogle();
       return google(modelId || PROVIDER_CONFIGS.google.defaultModel, {
         useSearchGrounding: options?.useWebSearch || false,
       });
