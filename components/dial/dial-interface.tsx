@@ -1,39 +1,24 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
-  Loader2,
   Sparkles,
-  Copy,
-  Zap,
-  Brain,
-  Target,
-  CheckCircle2,
-  AlertCircle,
-  Globe,
-  Crown,
-  Search,
-  PanelLeftClose,
-  PanelLeft,
-  History,
   Play,
+  History,
+  AtSign,
+  AlertCircle,
 } from 'lucide-react';
 import { useResolveArtifacts } from '@/hooks/useArtifacts';
 import { useQueryClient } from '@tanstack/react-query';
-import { HistoryPanel } from './history-panel';
-import { HistoryDetailModal } from './history-detail-modal';
-import { ArtifactsPanel } from './artifacts-panel';
-import type { DialResult } from '@/lib/db/schema';
+
+// New components
+import { LeftPanel } from './left-panel';
+import { PromptTab } from './prompt-tab';
+import { RunTab } from './run-tab';
+import { HistoryTab } from './history-tab';
+import { ArtifactsTab } from './artifacts-tab';
 
 // Response type for the dial API
 interface DialResponse {
@@ -43,6 +28,7 @@ interface DialResponse {
   final_answer?: string;
   synthesized_prompt?: string;
   error?: string;
+  message?: string;
   historyId?: string;
   metadata?: {
     tokensUsed?: number;
@@ -80,54 +66,64 @@ interface DialInterfaceProps {
 }
 
 export function DialInterface({ userId, userCredits, apiKey }: DialInterfaceProps) {
-  const [prompt, setPrompt] = useState('');
-  const [model, setModel] = useState('claude-3-haiku-20240307');
-  const [response, setResponse] = useState('');
-  const [loading, setLoading] = useState(false);
+  // Input state
+  const [inputPrompt, setInputPrompt] = useState('');
+  const [selectedModel, setSelectedModel] = useState('claude-3-haiku-20240307');
+
+  // Output state
+  const [optimizedPrompt, setOptimizedPrompt] = useState('');
+  const [editedPrompt, setEditedPrompt] = useState('');
+  const [originalOptimizedPrompt, setOriginalOptimizedPrompt] = useState('');
+
+  // Execution state
+  const [executionResult, setExecutionResult] = useState('');
+  const [executionError, setExecutionError] = useState<string | null>(null);
+
+  // Loading states
+  const [isOptimizing, setIsOptimizing] = useState(false);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [loadingPhase, setLoadingPhase] = useState<'idle' | 'optimizing' | 'executing'>('idle');
+
+  // UI state
+  const [isLeftPanelCollapsed, setIsLeftPanelCollapsed] = useState(false);
+  const [activeTab, setActiveTab] = useState<'prompt' | 'run' | 'history' | 'artifacts'>('prompt');
   const [error, setError] = useState('');
-  const [dialResponse, setDialResponse] = useState<DialResponse | null>(null);
-  const [copiedPrompt, setCopiedPrompt] = useState(false);
 
-  // Deep Dial state
-  const [deepDialEnabled, setDeepDialEnabled] = useState(false);
-  const [contextUrl, setContextUrl] = useState('');
-  const [scrapingStatus, setScrapingStatus] = useState<'idle' | 'scraping' | 'done'>('idle');
+  // Save state
+  const [isSaved, setIsSaved] = useState(false);
 
-  // Execute prompt state
-  const [editableSynthesizedPrompt, setEditableSynthesizedPrompt] = useState('');
-  const [executedResult, setExecutedResult] = useState('');
-  const [executing, setExecuting] = useState(false);
+  // Progressive disclosure state (hydration-safe)
+  const [hasUsedDial, setHasUsedDial] = useState(false);
 
-  // Layout state
-  const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
+  // Load progressive disclosure flag on client only
+  useEffect(() => {
+    const used = localStorage.getItem('promptdial_has_used') === 'true';
+    setHasUsedDial(used);
+  }, []);
 
-  // History modal state
-  const [selectedHistoryItem, setSelectedHistoryItem] = useState<DialResult | null>(null);
-  const [historyModalOpen, setHistoryModalOpen] = useState(false);
-
-  // Right panel tab state
-  const [rightPanelTab, setRightPanelTab] = useState<'history' | 'artifacts'>('history');
-
-  // Results panel tab state (when dialResponse exists)
-  const [resultsTab, setResultsTab] = useState<'prompt' | 'response' | 'result'>('prompt');
-
-  // Artifacts
+  // Refs and hooks
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const resolveArtifacts = useResolveArtifacts();
   const queryClient = useQueryClient();
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Computed values
+  const hasUnsavedChanges = editedPrompt !== originalOptimizedPrompt && editedPrompt !== '';
+  const hasPromptToRun = editedPrompt.trim().length > 0;
+  const isPromptEmpty = !optimizedPrompt && !editedPrompt;
+
+  // Handle artifact insertion
   const handleInsertArtifact = useCallback((handle: string) => {
     const textarea = textareaRef.current;
     if (!textarea) {
-      setPrompt((prev) => prev + ` @${handle}`);
+      setInputPrompt((prev) => prev + ` @${handle}`);
       return;
     }
 
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
-    const text = prompt;
+    const text = inputPrompt;
     const newText = text.substring(0, start) + `@${handle}` + text.substring(end);
-    setPrompt(newText);
+    setInputPrompt(newText);
 
     // Focus back on textarea
     setTimeout(() => {
@@ -135,103 +131,119 @@ export function DialInterface({ userId, userCredits, apiKey }: DialInterfaceProp
       const newPos = start + handle.length + 1;
       textarea.setSelectionRange(newPos, newPos);
     }, 0);
-  }, [prompt]);
+  }, [inputPrompt]);
 
-  const optimizePrompt = async () => {
-    setLoading(true);
+  // Optimize AND Run prompt in one action
+  const handleOptimizeAndRun = async () => {
+    setIsOptimizing(true);
+    setLoadingPhase('optimizing');
     setError('');
-    setResponse('');
-    setDialResponse(null);
-
-    // Validate Deep Dial requirements
-    if (deepDialEnabled && !contextUrl.trim()) {
-      setError('Please enter a URL for Deep Dial context enrichment.');
-      setLoading(false);
-      return;
-    }
+    setExecutionResult('');
+    setExecutionError(null);
 
     try {
       // First, resolve any @artifacts in the prompt
-      let resolvedPrompt = prompt;
-      if (prompt.includes('@')) {
-        const resolveResult = await resolveArtifacts.mutateAsync(prompt);
+      let resolvedPrompt = inputPrompt;
+      if (inputPrompt.includes('@')) {
+        const resolveResult = await resolveArtifacts.mutateAsync(inputPrompt);
         resolvedPrompt = resolveResult.resolvedPrompt;
 
-        // Warn about invalid mentions
         if (resolveResult.invalidMentions.length > 0) {
           console.warn('Invalid @mentions:', resolveResult.invalidMentions);
         }
       }
 
-      const endpoint = deepDialEnabled ? '/api/dial/deep' : '/api/dial';
-
-      if (deepDialEnabled) {
-        setScrapingStatus('scraping');
-      }
-
-      const res = await fetch(endpoint, {
+      // Step 1: Optimize the prompt
+      const dialRes = await fetch('/api/dial', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userGoal: resolvedPrompt,
           ...(apiKey && { apiKey }),
-          ...(deepDialEnabled && { contextUrl: contextUrl.trim() }),
           config: {
-            model: model,
+            model: selectedModel,
             maxIterations: 1,
           }
         })
       });
 
-      setScrapingStatus('done');
-      const data: DialResponse = await res.json();
+      const dialData: DialResponse = await dialRes.json();
 
-      if (res.ok) {
-        setDialResponse(data);
-        if (data.final_answer) {
-          setResponse(data.final_answer);
-        }
-        // Set editable synthesized prompt
-        if (data.synthesized_prompt) {
-          setEditableSynthesizedPrompt(data.synthesized_prompt);
-        }
-        // Reset executed result when new dial is performed
-        setExecutedResult('');
-        // Invalidate history cache to show new item
-        queryClient.invalidateQueries({ queryKey: ['dialHistory'] });
-      } else {
-        // Show both error and message if available for better debugging
-        const errorMsg = data.message
-          ? `${data.error}: ${data.message}`
-          : (data.error || 'Failed to optimize your prompt. Please try again.');
+      if (!dialRes.ok || !dialData.synthesized_prompt) {
+        const errorMsg = dialData.message
+          ? `${dialData.error}: ${dialData.message}`
+          : (dialData.error || 'Failed to optimize your prompt. Please try again.');
         setError(errorMsg);
+        setIsOptimizing(false);
+        return;
+      }
+
+      // Update prompt state
+      const optimized = dialData.synthesized_prompt;
+      setOptimizedPrompt(optimized);
+      setEditedPrompt(optimized);
+      setOriginalOptimizedPrompt(optimized);
+      setIsSaved(true);
+      setActiveTab('prompt'); // Show optimized prompt first
+
+      // Invalidate history cache
+      queryClient.invalidateQueries({ queryKey: ['dialHistory'] });
+
+      // Mark first use for progressive disclosure
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('promptdial_has_used', 'true');
+        setHasUsedDial(true);
+      }
+
+      // Step 2: Execute the optimized prompt (in background)
+      setIsOptimizing(false);
+      setIsExecuting(true);
+      setLoadingPhase('executing');
+
+      const execRes = await fetch('/api/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: optimized,
+          model: selectedModel, // Use same model for execution
+          ...(apiKey && { apiKey }),
+        })
+      });
+
+      const execData = await execRes.json();
+
+      if (execRes.ok && execData.ok) {
+        setExecutionResult(execData.result);
+      } else {
+        const errorMsg = execData.message
+          ? `${execData.error}: ${execData.message}`
+          : (execData.error || 'Optimization succeeded but execution failed');
+        setExecutionError(errorMsg);
       }
     } catch (err) {
       setError('Unable to connect to our servers. Please check your connection and try again.');
     } finally {
-      setLoading(false);
-      setScrapingStatus('idle');
+      setIsOptimizing(false);
+      setIsExecuting(false);
+      setLoadingPhase('idle');
     }
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedPrompt(true);
-    setTimeout(() => setCopiedPrompt(false), 2000);
-  };
+  // Execute prompt (re-run with current edited prompt)
+  const handleExecute = async () => {
+    if (!editedPrompt.trim()) return;
 
-  const executePrompt = async () => {
-    if (!editableSynthesizedPrompt.trim()) return;
-
-    setExecuting(true);
-    setError('');
+    setIsExecuting(true);
+    setExecutionError(null);
+    setActiveTab('run'); // Switch to run tab
 
     try {
       const res = await fetch('/api/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prompt: editableSynthesizedPrompt,
+          prompt: editedPrompt,
+          model: selectedModel, // Use global model
           ...(apiKey && { apiKey }),
         })
       });
@@ -239,413 +251,172 @@ export function DialInterface({ userId, userCredits, apiKey }: DialInterfaceProp
       const data = await res.json();
 
       if (res.ok && data.ok) {
-        setExecutedResult(data.result);
-        setResultsTab('result'); // Auto-switch to result tab
+        setExecutionResult(data.result);
       } else {
         const errorMsg = data.message
           ? `${data.error}: ${data.message}`
           : (data.error || 'Failed to execute prompt');
-        setError(errorMsg);
+        setExecutionError(errorMsg);
       }
     } catch (err) {
-      setError('Failed to execute prompt. Please try again.');
+      setExecutionError('Failed to execute prompt. Please try again.');
     } finally {
-      setExecuting(false);
+      setIsExecuting(false);
     }
   };
 
-  const handleSelectHistoryItem = (item: DialResult) => {
-    setSelectedHistoryItem(item);
-    setHistoryModalOpen(true);
+  // Handle prompt changes in the prompt tab
+  const handlePromptChange = (value: string) => {
+    setEditedPrompt(value);
+    setIsSaved(false);
   };
 
-  const handleUsePrompt = (promptText: string) => {
-    setPrompt(promptText);
-    setError('');
-    setDialResponse(null);
+  // Handle save
+  const handleSave = async () => {
+    // In this implementation, prompts are auto-saved when optimized
+    // This could be extended to save edited versions separately
+    setIsSaved(true);
+    setOriginalOptimizedPrompt(editedPrompt);
+  };
+
+  // Handle load from history
+  const handleLoadToInput = (prompt: string) => {
+    setInputPrompt(prompt);
+    // Optionally expand left panel if collapsed
+    if (isLeftPanelCollapsed) {
+      setIsLeftPanelCollapsed(false);
+    }
+  };
+
+  const handleLoadToPromptTab = (prompt: string) => {
+    setOptimizedPrompt(prompt);
+    setEditedPrompt(prompt);
+    setOriginalOptimizedPrompt(prompt);
+    setIsSaved(true);
+    setActiveTab('prompt');
+  };
+
+  // Handle run button from prompt tab
+  const handleRunFromPromptTab = () => {
+    handleExecute();
+  };
+
+  // Handle retry from run tab
+  const handleRetry = () => {
+    setExecutionError(null);
+    handleExecute();
   };
 
   return (
-    <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-3 flex items-center justify-center gap-3">
-          <Sparkles className="h-8 w-8 text-orange-500" />
-          AI Prompt Optimizer
-        </h1>
-        <p className="text-lg text-muted-foreground">
-          Transform your ideas into powerful AI prompts that get better results
-        </p>
-      </div>
+    <div className="flex h-[calc(100vh-64px)]">
+      {/* Left Panel - Input */}
+      <LeftPanel
+        ref={textareaRef}
+        prompt={inputPrompt}
+        onPromptChange={setInputPrompt}
+        model={selectedModel}
+        onModelChange={setSelectedModel}
+        onOptimize={handleOptimizeAndRun}
+        isOptimizing={isOptimizing || isExecuting}
+        loadingPhase={loadingPhase}
+        isCollapsed={isLeftPanelCollapsed}
+        onToggleCollapse={() => setIsLeftPanelCollapsed(!isLeftPanelCollapsed)}
+        credits={userCredits}
+        disabled={!inputPrompt.trim()}
+      />
 
-      {/* Two-column layout with collapsible left panel */}
-      <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-6">
-        {/* Left Column - Input (Collapsible) */}
-        <div
-          className={`
-            lg:sticky lg:top-8 lg:self-start space-y-4 transition-all duration-300
-            ${leftPanelCollapsed ? 'lg:w-[60px]' : 'lg:w-[450px]'}
-          `}
+      {/* Right Panel - Tabs */}
+      <div className="flex-1 flex flex-col p-6 overflow-hidden">
+        {/* Error display */}
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {/* Tab Navigation */}
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as typeof activeTab)}
+          className="flex-1 flex flex-col"
         >
-          {/* Collapse Toggle */}
-          <div className="hidden lg:flex justify-end">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setLeftPanelCollapsed(!leftPanelCollapsed)}
-              title={leftPanelCollapsed ? 'Expand panel' : 'Collapse panel'}
-            >
-              {leftPanelCollapsed ? (
-                <PanelLeft className="h-4 w-4" />
-              ) : (
-                <PanelLeftClose className="h-4 w-4" />
+          <div className="bg-muted/30 rounded-lg p-1 mb-4">
+            <TabsList className={`grid w-full bg-transparent ${hasUsedDial ? 'grid-cols-4' : 'grid-cols-2'}`}>
+              <TabsTrigger
+                value="prompt"
+                className="data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                Prompt
+              </TabsTrigger>
+              <TabsTrigger
+                value="run"
+                className="data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                <Play className="h-4 w-4 mr-2" />
+                Run
+              </TabsTrigger>
+              {hasUsedDial && (
+                <>
+                  <TabsTrigger
+                    value="history"
+                    className="data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                  >
+                    <History className="h-4 w-4 mr-2" />
+                    History
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="artifacts"
+                    className="data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                  >
+                    <AtSign className="h-4 w-4 mr-2" />
+                    Artifacts
+                  </TabsTrigger>
+                </>
               )}
-            </Button>
+            </TabsList>
           </div>
 
-          {/* Main Input Card */}
-          {!leftPanelCollapsed && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="h-5 w-5" />
-                  Your Prompt
-                </CardTitle>
-                <CardDescription>
-                  Tell us what you want to achieve and we'll optimize it for AI
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Deep Dial Toggle */}
-                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                  <div className="flex items-center gap-2">
-                    <Crown className="h-4 w-4 text-purple-600" />
-                    <div>
-                      <Label htmlFor="deep-dial" className="text-sm font-medium cursor-pointer">
-                        Deep Dial
-                      </Label>
-                      <p className="text-xs text-muted-foreground">
-                        Enrich with real company data
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs bg-purple-100 text-purple-700 border-purple-300">
-                      Premium
-                    </Badge>
-                    <Switch
-                      id="deep-dial"
-                      checked={deepDialEnabled}
-                      onCheckedChange={setDeepDialEnabled}
-                    />
-                  </div>
-                </div>
+          {/* Tab Contents */}
+          <TabsContent value="prompt" className="flex-1 flex flex-col mt-0">
+            <PromptTab
+              optimizedPrompt={editedPrompt}
+              onPromptChange={handlePromptChange}
+              onRun={handleRunFromPromptTab}
+              onSave={handleSave}
+              isOptimizing={isOptimizing}
+              isRunning={isExecuting}
+              hasUnsavedChanges={hasUnsavedChanges}
+              isSaved={isSaved}
+              isEmpty={isPromptEmpty}
+            />
+          </TabsContent>
 
-                {/* Deep Dial URL Input */}
-                {deepDialEnabled && (
-                  <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <Label htmlFor="context-url" className="flex items-center gap-2">
-                      <Globe className="h-4 w-4" />
-                      Context URL
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="context-url"
-                        type="url"
-                        value={contextUrl}
-                        onChange={(e) => setContextUrl(e.target.value)}
-                        placeholder="e.g., https://company.com"
-                        className="pr-10"
-                      />
-                      {scrapingStatus === 'scraping' && (
-                        <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-pulse" />
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      We'll scrape this website to inject real context into your prompt
-                    </p>
-                  </div>
-                )}
+          <TabsContent value="run" className="flex-1 flex flex-col mt-0">
+            <RunTab
+              result={executionResult}
+              error={executionError}
+              model={selectedModel}
+              onExecute={handleExecute}
+              onRetry={handleRetry}
+              isExecuting={isExecuting}
+              hasPromptToRun={hasPromptToRun}
+            />
+          </TabsContent>
 
-                {/* Model Selection */}
-                <div className="space-y-2">
-                  <Label htmlFor="model">AI Model</Label>
-                  <Select value={model} onValueChange={setModel}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="claude-3-haiku-20240307">
-                        <div className="flex items-center gap-2">
-                          <Zap className="h-3 w-3" />
-                          Fast Mode (Claude Haiku)
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="claude-3-5-sonnet-20241022">
-                        <div className="flex items-center gap-2">
-                          <Target className="h-3 w-3" />
-                          Balanced Mode (Claude Sonnet)
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="claude-3-opus-20240229">
-                        <div className="flex items-center gap-2">
-                          <Brain className="h-3 w-3" />
-                          Power Mode (Claude Opus)
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+          <TabsContent value="history" className="flex-1 flex flex-col mt-0">
+            <HistoryTab
+              onLoadToInput={handleLoadToInput}
+              onLoadToPromptTab={handleLoadToPromptTab}
+            />
+          </TabsContent>
 
-                {/* Prompt Input */}
-                <div className="space-y-2">
-                  <Label htmlFor="prompt">What do you want to accomplish?</Label>
-                  <Textarea
-                    ref={textareaRef}
-                    id="prompt"
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="e.g., Write a compelling product description for eco-friendly water bottles...
-
-Use @artifact to inject context (e.g., @mom, @acme-corp)"
-                    rows={6}
-                    className="resize-none"
-                  />
-                  {prompt.includes('@') && (
-                    <p className="text-xs text-purple-600">
-                      @mentions will be expanded with artifact content
-                    </p>
-                  )}
-                </div>
-
-                {/* Optimize Button */}
-                <Button
-                  onClick={optimizePrompt}
-                  disabled={loading || !prompt || (deepDialEnabled && !contextUrl.trim())}
-                  className={`w-full ${deepDialEnabled ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700' : ''}`}
-                  size="lg"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {scrapingStatus === 'scraping' ? 'Researching Context...' : 'Optimizing Your Prompt...'}
-                    </>
-                  ) : deepDialEnabled ? (
-                    <>
-                      <Crown className="mr-2 h-4 w-4" />
-                      Deep Dial (5 credits)
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      Optimize My Prompt
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Collapsed state shows just an icon */}
-          {leftPanelCollapsed && (
-            <Card className="p-4 flex flex-col items-center justify-center min-h-[200px]">
-              <Brain className="h-6 w-6 text-muted-foreground mb-2" />
-              <span className="text-xs text-muted-foreground text-center">Input</span>
-            </Card>
-          )}
-        </div>
-
-        {/* Right Column - Results + History/Artifacts */}
-        <div className="space-y-6 min-h-[600px]">
-          {/* Error display */}
-          {error && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          {/* Loading state */}
-          {loading && (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-16">
-                <div className="relative">
-                  <Loader2 className="h-12 w-12 animate-spin text-orange-500" />
-                  <Sparkles className="h-6 w-6 absolute -top-1 -right-1 text-orange-400 animate-pulse" />
-                </div>
-                <p className="mt-4 text-sm text-muted-foreground">
-                  Analyzing and optimizing your prompt...
-                </p>
-                <div className="mt-2 text-xs text-muted-foreground">
-                  This usually takes 5-10 seconds
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Success - Single Unified Results Panel */}
-          {dialResponse && !loading && (
-            <Card className="flex flex-col min-h-[500px]">
-              {/* Top Navigation Bar */}
-              <div className="border-b px-4 py-3">
-                <div className="flex items-center justify-between">
-                  {/* Tabs */}
-                  <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
-                    <button
-                      onClick={() => setResultsTab('prompt')}
-                      className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                        resultsTab === 'prompt'
-                          ? 'bg-background text-foreground shadow-sm'
-                          : 'text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      <Sparkles className="h-4 w-4 inline mr-1.5" />
-                      Prompt
-                    </button>
-                    <button
-                      onClick={() => setResultsTab('response')}
-                      className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                        resultsTab === 'response'
-                          ? 'bg-background text-foreground shadow-sm'
-                          : 'text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      <Brain className="h-4 w-4 inline mr-1.5" />
-                      Response
-                    </button>
-                    {executedResult && (
-                      <button
-                        onClick={() => setResultsTab('result')}
-                        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                          resultsTab === 'result'
-                            ? 'bg-background text-foreground shadow-sm'
-                            : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                      >
-                        <CheckCircle2 className="h-4 w-4 inline mr-1.5" />
-                        Result
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        if (resultsTab === 'prompt') copyToClipboard(editableSynthesizedPrompt);
-                        else if (resultsTab === 'response') copyToClipboard(dialResponse.final_answer || response);
-                        else if (resultsTab === 'result') copyToClipboard(executedResult);
-                      }}
-                    >
-                      {copiedPrompt ? (
-                        <CheckCircle2 className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </Button>
-                    {resultsTab === 'prompt' && (
-                      <Button
-                        size="sm"
-                        onClick={executePrompt}
-                        disabled={executing || !editableSynthesizedPrompt.trim()}
-                        className="bg-green-600 hover:bg-green-700"
-                      >
-                        {executing ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Play className="h-4 w-4" />
-                        )}
-                      </Button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Deep Dial Context Badge (if applicable) */}
-                {dialResponse.deepDial && (
-                  <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                    <Crown className="h-3 w-3 text-purple-600" />
-                    <span>{dialResponse.deepDial.company?.name}</span>
-                    <Badge variant="outline" className="text-xs">
-                      {dialResponse.deepDial.enrichment.qualityScore}% quality
-                    </Badge>
-                  </div>
-                )}
-              </div>
-
-              {/* Content Area */}
-              <CardContent className="flex-1 p-4 overflow-auto">
-                {/* Prompt Tab */}
-                {resultsTab === 'prompt' && (
-                  <div className="space-y-2">
-                    <p className="text-xs text-muted-foreground">
-                      Edit the optimized prompt, then click ▶ to execute
-                    </p>
-                    <Textarea
-                      value={editableSynthesizedPrompt}
-                      onChange={(e) => setEditableSynthesizedPrompt(e.target.value)}
-                      rows={12}
-                      className="resize-none font-mono text-sm"
-                    />
-                  </div>
-                )}
-
-                {/* Response Tab */}
-                {resultsTab === 'response' && (
-                  <div className="prose prose-sm max-w-none dark:prose-invert">
-                    <pre className="whitespace-pre-wrap text-sm bg-muted/50 p-4 rounded-lg">
-                      {dialResponse.final_answer || response}
-                    </pre>
-                  </div>
-                )}
-
-                {/* Result Tab */}
-                {resultsTab === 'result' && executedResult && (
-                  <div className="prose prose-sm max-w-none dark:prose-invert">
-                    <pre className="whitespace-pre-wrap text-sm bg-muted/50 p-4 rounded-lg">
-                      {executedResult}
-                    </pre>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* History/Artifacts Panel - Always visible */}
-          <Tabs value={rightPanelTab} onValueChange={(v) => setRightPanelTab(v as 'history' | 'artifacts')}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="history">
-                <History className="h-4 w-4 mr-2" />
-                History
-              </TabsTrigger>
-              <TabsTrigger value="artifacts">
-                <Sparkles className="h-4 w-4 mr-2" />
-                Artifacts
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="history" className="mt-4">
-              <HistoryPanel
-                onSelectItem={handleSelectHistoryItem}
-                selectedItemId={selectedHistoryItem?.id}
-              />
-            </TabsContent>
-
-            <TabsContent value="artifacts" className="mt-4">
-              <ArtifactsPanel onInsertArtifact={handleInsertArtifact} />
-            </TabsContent>
-          </Tabs>
-        </div>
+          <TabsContent value="artifacts" className="flex-1 flex flex-col mt-0">
+            <ArtifactsTab onInsertArtifact={handleInsertArtifact} />
+          </TabsContent>
+        </Tabs>
       </div>
-
-      {/* History Detail Modal */}
-      <HistoryDetailModal
-        item={selectedHistoryItem}
-        open={historyModalOpen}
-        onOpenChange={setHistoryModalOpen}
-        onUsePrompt={handleUsePrompt}
-      />
     </div>
   );
 }

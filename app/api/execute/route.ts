@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { prompt, apiKey } = body;
+    const { prompt, model, apiKey } = body;
 
     if (!prompt) {
       return NextResponse.json(
@@ -16,6 +16,9 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Use provided model or default to sonnet
+    const effectiveModel = model || 'claude-3-5-sonnet-20241022';
 
     // Use provided API key in dev mode, otherwise use env var
     const effectiveApiKey = process.env.NODE_ENV === 'development' && apiKey
@@ -32,7 +35,7 @@ export async function POST(req: NextRequest) {
     const anthropic = createAnthropic({ apiKey: effectiveApiKey });
 
     const { text, usage } = await generateText({
-      model: anthropic('claude-sonnet-4-20250514'),
+      model: anthropic(effectiveModel),
       prompt: prompt,
       maxTokens: 4000,
       temperature: 0.7,
@@ -43,7 +46,7 @@ export async function POST(req: NextRequest) {
       result: text,
       metadata: {
         tokensUsed: usage?.totalTokens,
-        model: 'claude-sonnet-4-20250514',
+        model: effectiveModel,
       }
     });
 
