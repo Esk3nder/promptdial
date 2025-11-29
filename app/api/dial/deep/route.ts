@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { generateText } from 'ai';
-import { anthropic } from '@ai-sdk/anthropic';
+import { createAnthropic } from '@ai-sdk/anthropic';
 import { kernelPrompt } from '@/lib/dial/kernel';
 import { ResponseValidator } from '@/lib/dial/response-validator';
 import {
@@ -11,6 +11,9 @@ import {
   assessEnrichmentQuality,
 } from '@/lib/research';
 import { headers } from 'next/headers';
+
+// Prevent static generation - API routes should be dynamic
+export const dynamic = 'force-dynamic';
 
 // Deep Dial is a premium feature - costs more credits
 const DEEP_DIAL_CREDIT_COST = 5;
@@ -103,6 +106,9 @@ export async function POST(req: NextRequest) {
         enrichment_level: enrichedPromptResult.enrichmentLevel,
       },
     });
+
+    // Create Anthropic client lazily to avoid build-time API key validation
+    const anthropic = createAnthropic();
 
     const { text, usage } = await generateText({
       model: anthropic('claude-3-5-sonnet-20241022'),

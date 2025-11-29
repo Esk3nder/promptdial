@@ -4,11 +4,14 @@ import { Autumn } from 'autumn-js';
 import { AuthenticationError, ExternalServiceError, handleApiError } from '@/lib/api-errors';
 import { FEATURE_ID_MESSAGES } from '@/config/constants';
 
-const autumn = new Autumn({
-  secretKey: process.env.AUTUMN_SECRET_KEY!,
-});
+// Prevent static generation - API routes should be dynamic
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
+  // Create Autumn client lazily to avoid build-time validation
+  const autumn = new Autumn({
+    secretKey: process.env.AUTUMN_SECRET_KEY!,
+  });
   try {
     // Get the session
     const sessionResponse = await auth.api.getSession({
