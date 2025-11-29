@@ -5,6 +5,8 @@ import { createAnthropic } from '@ai-sdk/anthropic';
 import { kernelPrompt } from '@/lib/dial/kernel';
 import { ResponseValidator } from '@/lib/dial/response-validator';
 import { headers } from 'next/headers';
+import { db } from '@/lib/db';
+import { dialResults } from '@/lib/db/schema';
 
 // Prevent static generation - API routes should be dynamic
 export const dynamic = 'force-dynamic';
@@ -20,7 +22,7 @@ export async function POST(req: NextRequest) {
     const userId = session?.user?.id || 'test-user';
 
     const body = await req.json();
-    const { userGoal, state = {} } = body;
+    const { userGoal, state = {}, apiKey } = body;
 
     if (!userGoal) {
       return NextResponse.json(
@@ -29,28 +31,41 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Use provided API key in dev mode, otherwise use env var
+    const effectiveApiKey = process.env.NODE_ENV === 'development' && apiKey
+      ? apiKey
+      : process.env.ANTHROPIC_API_KEY;
+
+    if (!effectiveApiKey) {
+      return NextResponse.json(
+        { error: 'ANTHROPIC_API_KEY not configured. In dev mode, paste your key in the input field.' },
+        { status: 500 }
+      );
+    }
+
     // Policy checks disabled - relying on model provider safety
     // All safety constraints handled by the underlying models (Anthropic, OpenAI, etc.)
 
     // Generate plan using only the kernel prompt (which includes all necessary instructions)
     const systemPrompt = kernelPrompt;
-    
+
     console.log('\n=== DIAL DEBUG ===');
     console.log('User Goal:', userGoal);
     console.log('System Prompt Length:', systemPrompt.length, 'chars');
     console.log('System Prompt Preview:', systemPrompt.substring(0, 200) + '...');
-    
+
     const userPrompt = JSON.stringify({
       user_goal: userGoal,
       state
     });
     console.log('User Prompt:', userPrompt);
-    
-    // Create Anthropic client lazily to avoid build-time API key validation
-    const anthropic = createAnthropic();
 
+    // Create Anthropic client with the effective API key
+    const anthropic = createAnthropic({ apiKey: effectiveApiKey });
+
+    // Use claude-sonnet-4 (latest) - more reliable than dated versions
     const { text, usage } = await generateText({
-      model: anthropic('claude-3-5-sonnet-20241022'),
+      model: anthropic('claude-sonnet-4-20250514'),
       system: systemPrompt,
       prompt: userPrompt,
       maxTokens: 1800,
@@ -111,9 +126,37 @@ export async function POST(req: NextRequest) {
     // Add metadata
     response.metadata = {
       tokensUsed: usage?.totalTokens,
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-20250514',
       stage: 'dial'
     };
+
+    // Save to history if user is authenticated and response is successful
+    if (session?.user?.id && response.ok) {
+      try {
+        // Generate title from first 50 chars of original prompt
+        const title = userGoal.length > 50
+          ? userGoal.substring(0, 50) + '...'
+          : userGoal;
+
+        const [savedResult] = await db.insert(dialResults).values({
+          userId: session.user.id,
+          title,
+          originalPrompt: userGoal,
+          synthesizedPrompt: response.synthesized_prompt || null,
+          finalAnswer: response.final_answer || null,
+          model: 'claude-sonnet-4-20250514',
+          isDeepDial: false,
+          creditsUsed: 1,
+        }).returning();
+
+        // Add history ID to response
+        response.historyId = savedResult.id;
+        console.log('Saved dial result to history:', savedResult.id);
+      } catch (saveError) {
+        console.error('Failed to save dial result to history:', saveError);
+        // Don't fail the request if save fails
+      }
+    }
 
     return NextResponse.json(response);
 

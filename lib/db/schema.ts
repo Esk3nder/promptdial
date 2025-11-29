@@ -65,6 +65,8 @@ export const userSettings = pgTable('user_settings', {
 export const userProfileRelations = relations(userProfile, ({ many }) => ({
   conversations: many(conversations),
   brandAnalyses: many(brandAnalyses),
+  dialResults: many(dialResults),
+  artifacts: many(artifacts),
 }));
 
 export const conversationsRelations = relations(conversations, ({ one, many }) => ({
@@ -90,6 +92,33 @@ export const messageFeedbackRelations = relations(messageFeedback, ({ one }) => 
   }),
 }));
 
+// Dial Results - stores history of prompt optimizations
+export const dialResults = pgTable('dial_results', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: text('user_id').notNull(),
+  title: text('title').notNull(), // First 50 chars of original prompt
+  originalPrompt: text('original_prompt').notNull(),
+  synthesizedPrompt: text('synthesized_prompt'),
+  finalAnswer: text('final_answer'),
+  model: text('model').notNull(),
+  isDeepDial: boolean('is_deep_dial').default(false),
+  contextUrl: text('context_url'), // For Deep Dial
+  creditsUsed: integer('credits_used').default(1),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()),
+});
+
+// Artifacts - user-created context profiles for @mention injection
+export const artifacts = pgTable('artifacts', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: text('user_id').notNull(),
+  handle: text('handle').notNull(), // e.g., "mom" (lowercase, validated)
+  displayName: text('display_name').notNull(), // e.g., "Mom"
+  content: text('content').notNull(), // Markdown profile
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()),
+});
+
 // Brand Monitor Analyses
 export const brandAnalyses = pgTable('brand_analyses', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -113,6 +142,20 @@ export const brandAnalysesRelations = relations(brandAnalyses, ({ one }) => ({
   }),
 }));
 
+export const dialResultsRelations = relations(dialResults, ({ one }) => ({
+  userProfile: one(userProfile, {
+    fields: [dialResults.userId],
+    references: [userProfile.userId],
+  }),
+}));
+
+export const artifactsRelations = relations(artifacts, ({ one }) => ({
+  userProfile: one(userProfile, {
+    fields: [artifacts.userId],
+    references: [userProfile.userId],
+  }),
+}));
+
 // Type exports for use in application
 export type UserProfile = typeof userProfile.$inferSelect;
 export type NewUserProfile = typeof userProfile.$inferInsert;
@@ -126,3 +169,7 @@ export type UserSettings = typeof userSettings.$inferSelect;
 export type NewUserSettings = typeof userSettings.$inferInsert;
 export type BrandAnalysis = typeof brandAnalyses.$inferSelect;
 export type NewBrandAnalysis = typeof brandAnalyses.$inferInsert;
+export type DialResult = typeof dialResults.$inferSelect;
+export type NewDialResult = typeof dialResults.$inferInsert;
+export type Artifact = typeof artifacts.$inferSelect;
+export type NewArtifact = typeof artifacts.$inferInsert;

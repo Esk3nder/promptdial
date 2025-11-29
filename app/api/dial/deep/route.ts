@@ -11,6 +11,8 @@ import {
   assessEnrichmentQuality,
 } from '@/lib/research';
 import { headers } from 'next/headers';
+import { db } from '@/lib/db';
+import { dialResults } from '@/lib/db/schema';
 
 // Prevent static generation - API routes should be dynamic
 export const dynamic = 'force-dynamic';
@@ -174,6 +176,35 @@ export async function POST(req: NextRequest) {
 
     console.log('\n=== DEEP DIAL COMPLETE ===');
     console.log('Final response includes deepDial metadata');
+
+    // Save to history
+    if (response.ok) {
+      try {
+        // Generate title from first 50 chars of original prompt
+        const title = userGoal.length > 50
+          ? userGoal.substring(0, 50) + '...'
+          : userGoal;
+
+        const [savedResult] = await db.insert(dialResults).values({
+          userId,
+          title,
+          originalPrompt: userGoal,
+          synthesizedPrompt: response.synthesized_prompt || null,
+          finalAnswer: response.final_answer || null,
+          model: 'claude-3-5-sonnet-20241022',
+          isDeepDial: true,
+          contextUrl,
+          creditsUsed: DEEP_DIAL_CREDIT_COST,
+        }).returning();
+
+        // Add history ID to response
+        response.historyId = savedResult.id;
+        console.log('Saved deep dial result to history:', savedResult.id);
+      } catch (saveError) {
+        console.error('Failed to save deep dial result to history:', saveError);
+        // Don't fail the request if save fails
+      }
+    }
 
     return NextResponse.json(response);
   } catch (error: any) {
