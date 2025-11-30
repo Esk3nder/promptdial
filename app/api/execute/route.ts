@@ -17,8 +17,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Use provided model or default to sonnet
-    const effectiveModel = model || 'claude-3-5-sonnet-20241022';
+    // Use provided model or default to Claude Sonnet 4
+    const effectiveModel = model || 'claude-sonnet-4-20250514';
 
     // Use provided API key in dev mode, otherwise use env var
     const effectiveApiKey = process.env.NODE_ENV === 'development' && apiKey

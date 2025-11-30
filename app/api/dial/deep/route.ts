@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
     const anthropic = createAnthropic();
 
     const { text, usage } = await generateText({
-      model: anthropic('claude-3-5-sonnet-20241022'),
+      model: anthropic('claude-sonnet-4-20250514'),
       system: fullSystemPrompt,
       prompt: userPrompt,
       maxTokens: 2400, // More tokens for enriched responses
@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
     // Add Deep Dial metadata
     response.metadata = {
       tokensUsed: usage?.totalTokens,
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-20250514',
       stage: 'deep-dial',
       creditCost: DEEP_DIAL_CREDIT_COST,
     };
@@ -191,7 +191,7 @@ export async function POST(req: NextRequest) {
           originalPrompt: userGoal,
           synthesizedPrompt: response.synthesized_prompt || null,
           finalAnswer: response.final_answer || null,
-          model: 'claude-3-5-sonnet-20241022',
+          model: 'claude-sonnet-4-20250514',
           isDeepDial: true,
           contextUrl,
           creditsUsed: DEEP_DIAL_CREDIT_COST,

@@ -74,12 +74,38 @@ export class ResponseValidator {
   }
 
   /**
+   * Generate a basic optimized prompt from user goal
+   * Used as fallback when LLM doesn't return valid JSON
+   */
+  static generateBasicOptimizedPrompt(userGoal: string): string {
+    // Clean and analyze the user goal
+    const goal = userGoal.trim();
+
+    // Basic prompt optimization template
+    return `# Task
+${goal}
+
+# Instructions
+- Provide a comprehensive, well-structured response
+- Use clear headings and sections where appropriate
+- Include relevant examples or explanations
+- Ensure accuracy and clarity throughout
+- Format the output for easy readability
+
+# Output Format
+Deliver a thorough response that directly addresses the request above. Structure your response with clear organization and include any relevant context that would make the answer more useful.`;
+  }
+
+  /**
    * Create a fallback response when parsing fails
    */
   static createFallbackResponse(
     userGoal: string,
     rawResponse: string
   ): OrchestrationResponse {
+    // Generate a basic optimized prompt instead of just echoing the user goal
+    const optimizedPrompt = this.generateBasicOptimizedPrompt(userGoal);
+
     return {
       ok: true,
       dials: {
@@ -119,7 +145,7 @@ export class ResponseValidator {
         reference: [],
         output: { raw: rawResponse.substring(0, 500) }
       },
-      synthesized_prompt: `Process the following request: "${userGoal}"`,
+      synthesized_prompt: optimizedPrompt,
       events: [
         {
           type: 'error',
@@ -197,6 +223,12 @@ export class ResponseValidator {
     if (!fixed.next_action) fixed.next_action = 'done';
     if (fixed.confidence === undefined) fixed.confidence = 0.7;
     if (!fixed.schema_version) fixed.schema_version = '1.0';
+
+    // CRITICAL: Ensure synthesized_prompt is always present
+    // This is the main output the user sees
+    if (!fixed.synthesized_prompt) {
+      fixed.synthesized_prompt = this.generateBasicOptimizedPrompt(userGoal);
+    }
 
     return fixed;
   }
