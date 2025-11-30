@@ -44,11 +44,17 @@ export async function GET(request: NextRequest) {
 // POST endpoint to create a new artifact
 export async function POST(request: NextRequest) {
   try {
+    const headersList = await headers();
+    console.log('[Artifacts POST] Cookie header:', headersList.get('cookie'));
+
     const session = await auth.api.getSession({
-      headers: await headers(),
+      headers: headersList,
     });
 
+    console.log('[Artifacts POST] Session:', session ? 'found' : 'null', session?.user?.id);
+
     if (!session?.user) {
+      console.log('[Artifacts POST] Unauthorized - no session');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

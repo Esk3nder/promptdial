@@ -29,15 +29,13 @@ interface ArtifactsTabProps {
 }
 
 export function ArtifactsTab({ onInsertArtifact }: ArtifactsTabProps) {
-  const { data, isLoading, error } = useArtifacts();
+  const { data: artifacts = [], isLoading, error } = useArtifacts();
   const deleteArtifact = useDeleteArtifact();
 
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingArtifact, setEditingArtifact] = useState<Artifact | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [artifactToDelete, setArtifactToDelete] = useState<string | null>(null);
-
-  const artifacts = data?.data || [];
 
   const handleCreate = () => {
     setEditingArtifact(null);

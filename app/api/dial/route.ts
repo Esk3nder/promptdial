@@ -7,6 +7,8 @@ import { ResponseValidator } from '@/lib/dial/response-validator';
 import { headers } from 'next/headers';
 import { db } from '@/lib/db';
 import { dialResults } from '@/lib/db/schema';
+import { classifyTask } from '@/lib/dial/task-classifier';
+import { getExemplarByType, formatExemplar } from '@/lib/dial/exemplars';
 
 // Prevent static generation - API routes should be dynamic
 export const dynamic = 'force-dynamic';
@@ -22,7 +24,7 @@ export async function POST(req: NextRequest) {
     const userId = session?.user?.id || 'test-user';
 
     const body = await req.json();
-    const { userGoal, state = {}, apiKey } = body;
+    const { userGoal, state = {}, apiKey, dialSettings } = body;
 
     if (!userGoal) {
       return NextResponse.json(
@@ -46,19 +48,52 @@ export async function POST(req: NextRequest) {
     // Policy checks disabled - relying on model provider safety
     // All safety constraints handled by the underlying models (Anthropic, OpenAI, etc.)
 
-    // Generate plan using only the kernel prompt (which includes all necessary instructions)
-    const systemPrompt = kernelPrompt;
+    // Classify the task type and get the best matching exemplar
+    const classification = classifyTask(userGoal);
+    const exemplar = getExemplarByType(classification.taskType);
+    const formattedExemplar = formatExemplar(exemplar);
+
+    // Generate plan using the kernel prompt + dynamic exemplar
+    const systemPrompt = `${kernelPrompt}
+
+────────────────────────────────────────
+G. FEW-SHOT EXAMPLE
+
+Below is an example of transforming a "lazy" prompt into a rigorous, optimized prompt. Use this as a reference for the level of detail and structure expected in your \`synthesized_prompt\`:
+
+${formattedExemplar}
+
+────────────────────────────────────────
+
+Remember: Your \`synthesized_prompt\` should match or exceed this level of rigor, tailored to the specific task at hand.`;
 
     console.log('\n=== DIAL DEBUG ===');
     console.log('User Goal:', userGoal);
+    console.log('Task Classification:', classification.taskType, '(confidence:', classification.confidence + ')');
+    console.log('Selected Exemplar:', exemplar.id);
     console.log('System Prompt Length:', systemPrompt.length, 'chars');
     console.log('System Prompt Preview:', systemPrompt.substring(0, 200) + '...');
 
+    // Build dial parameters if provided
+    const dialParams = dialSettings ? {
+      preset: dialSettings.preset === 'custom' ? 'scholar' : dialSettings.preset,
+      depth: dialSettings.values?.depth,
+      breadth: dialSettings.values?.breadth,
+      verbosity: dialSettings.values?.verbosity,
+      creativity: dialSettings.values?.creativity,
+      risk_tolerance: dialSettings.values?.riskTolerance,
+      output_format: dialSettings.values?.outputFormat,
+    } : undefined;
+
     const userPrompt = JSON.stringify({
       user_goal: userGoal,
-      state
+      state,
+      ...(dialParams && { dials: dialParams }),
     });
     console.log('User Prompt:', userPrompt);
+    if (dialParams) {
+      console.log('Dial Settings:', dialParams);
+    }
 
     // Create Anthropic client with the effective API key
     const anthropic = createAnthropic({ apiKey: effectiveApiKey });
@@ -68,7 +103,7 @@ export async function POST(req: NextRequest) {
       model: anthropic('claude-sonnet-4-20250514'),
       system: systemPrompt,
       prompt: userPrompt,
-      maxTokens: 1800,
+      maxTokens: 8000,
       temperature: 0.7,
     });
     
@@ -79,12 +114,18 @@ export async function POST(req: NextRequest) {
 
     let response;
     
+    // Preprocess: Replace JavaScript undefined with JSON null
+    const sanitizedText = text.replace(/:\s*undefined/g, ': null');
+
     // First attempt: Direct JSON parse
     try {
-      response = JSON.parse(text);
+      response = JSON.parse(sanitizedText);
       console.log('\n=== DIRECT JSON PARSE SUCCESS ===');
-    } catch (parseError) {
+    } catch (parseError: any) {
       console.log('\n=== DIRECT JSON PARSE FAILED ===');
+      console.log('Parse error:', parseError.message);
+      console.log('Full response (first 2000 chars):', text.substring(0, 2000));
+      console.log('Full response (last 500 chars):', text.substring(text.length - 500));
       console.log('Attempting to extract JSON from text...');
       
       // Second attempt: Extract JSON from text

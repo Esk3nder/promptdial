@@ -94,3 +94,36 @@ export interface DialResponse {
     stage?: string;
   };
 }
+
+// ============================================
+// UI Dial Settings Types
+// ============================================
+
+// Preset types for UI (includes 'default' and 'custom')
+export type DialPreset =
+  | 'default'
+  | 'custom'
+  | 'laser'
+  | 'scholar'
+  | 'builder'
+  | 'strategist'
+  | 'socratic'
+  | 'brainstorm'
+  | 'pm'
+  | 'analyst';
+
+// Core dial values exposed in the UI
+export interface DialValues {
+  depth: number;        // 0-5: How deeply to analyze
+  breadth: number;      // 0-5: How many alternatives
+  verbosity: number;    // 0-5: Response detail level
+  creativity: number;   // 0-5: Novel ideas tolerance
+  riskTolerance: number; // 0-5: Bold suggestions
+  outputFormat: 'markdown' | 'json' | 'hybrid';
+}
+
+// Complete UI state for dial settings
+export interface DialUIState {
+  preset: DialPreset;
+  values: DialValues;
+}

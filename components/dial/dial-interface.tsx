@@ -12,6 +12,9 @@ import {
 } from 'lucide-react';
 import { useResolveArtifacts } from '@/hooks/useArtifacts';
 import { useQueryClient } from '@tanstack/react-query';
+import type { DialUIState } from '@/lib/dial/types';
+import { createDefaultDialState } from '@/lib/dial/presets';
+import { loadDialSettings, saveDialSettings } from '@/lib/dial/dial-storage';
 
 // New components
 import { LeftPanel } from './left-panel';
@@ -68,7 +71,7 @@ interface DialInterfaceProps {
 export function DialInterface({ userId, userCredits, apiKey }: DialInterfaceProps) {
   // Input state
   const [inputPrompt, setInputPrompt] = useState('');
-  const [selectedModel, setSelectedModel] = useState('claude-3-haiku-20240307');
+  const [selectedModel, setSelectedModel] = useState('claude-sonnet-4-20250514');
 
   // Output state
   const [optimizedPrompt, setOptimizedPrompt] = useState('');
@@ -89,6 +92,10 @@ export function DialInterface({ userId, userCredits, apiKey }: DialInterfaceProp
   const [activeTab, setActiveTab] = useState<'prompt' | 'run' | 'history' | 'artifacts'>('prompt');
   const [error, setError] = useState('');
 
+  // Dial settings state
+  const [dialSettings, setDialSettings] = useState<DialUIState>(createDefaultDialState);
+  const [isDialSettingsOpen, setIsDialSettingsOpen] = useState(false);
+
   // Save state
   const [isSaved, setIsSaved] = useState(false);
 
@@ -99,6 +106,18 @@ export function DialInterface({ userId, userCredits, apiKey }: DialInterfaceProp
   useEffect(() => {
     const used = localStorage.getItem('promptdial_has_used') === 'true';
     setHasUsedDial(used);
+  }, []);
+
+  // Load dial settings from localStorage on mount
+  useEffect(() => {
+    const stored = loadDialSettings();
+    setDialSettings(stored);
+  }, []);
+
+  // Handle dial settings change and persist to localStorage
+  const handleDialSettingsChange = useCallback((newSettings: DialUIState) => {
+    setDialSettings(newSettings);
+    saveDialSettings(newSettings);
   }, []);
 
   // Refs and hooks
@@ -160,6 +179,8 @@ export function DialInterface({ userId, userCredits, apiKey }: DialInterfaceProp
         body: JSON.stringify({
           userGoal: resolvedPrompt,
           ...(apiKey && { apiKey }),
+          // Only include dialSettings if not using default preset
+          ...(dialSettings.preset !== 'default' && { dialSettings }),
           config: {
             model: selectedModel,
             maxIterations: 1,
@@ -316,6 +337,10 @@ export function DialInterface({ userId, userCredits, apiKey }: DialInterfaceProp
         onPromptChange={setInputPrompt}
         model={selectedModel}
         onModelChange={setSelectedModel}
+        dialSettings={dialSettings}
+        onDialSettingsChange={handleDialSettingsChange}
+        isDialSettingsOpen={isDialSettingsOpen}
+        onDialSettingsOpenChange={setIsDialSettingsOpen}
         onOptimize={handleOptimizeAndRun}
         isOptimizing={isOptimizing || isExecuting}
         loadingPhase={loadingPhase}
@@ -326,7 +351,7 @@ export function DialInterface({ userId, userCredits, apiKey }: DialInterfaceProp
       />
 
       {/* Right Panel - Tabs */}
-      <div className="flex-1 flex flex-col p-6 overflow-hidden">
+      <div className="flex-1 flex flex-col p-6 min-h-0">
         {/* Error display */}
         {error && (
           <Alert variant="destructive" className="mb-4">
@@ -339,7 +364,7 @@ export function DialInterface({ userId, userCredits, apiKey }: DialInterfaceProp
         <Tabs
           value={activeTab}
           onValueChange={(v) => setActiveTab(v as typeof activeTab)}
-          className="flex-1 flex flex-col"
+          className="flex-1 flex flex-col min-h-0"
         >
           <div className="bg-muted/30 rounded-lg p-1 mb-4">
             <TabsList className={`grid w-full bg-transparent ${hasUsedDial ? 'grid-cols-4' : 'grid-cols-2'}`}>
@@ -379,7 +404,7 @@ export function DialInterface({ userId, userCredits, apiKey }: DialInterfaceProp
           </div>
 
           {/* Tab Contents */}
-          <TabsContent value="prompt" className="flex-1 flex flex-col mt-0">
+          <TabsContent value="prompt" className="flex-1 flex flex-col mt-0 min-h-0 overflow-auto">
             <PromptTab
               optimizedPrompt={editedPrompt}
               onPromptChange={handlePromptChange}
@@ -393,7 +418,7 @@ export function DialInterface({ userId, userCredits, apiKey }: DialInterfaceProp
             />
           </TabsContent>
 
-          <TabsContent value="run" className="flex-1 flex flex-col mt-0">
+          <TabsContent value="run" className="flex-1 flex flex-col mt-0 min-h-0 overflow-auto">
             <RunTab
               result={executionResult}
               error={executionError}
@@ -405,14 +430,14 @@ export function DialInterface({ userId, userCredits, apiKey }: DialInterfaceProp
             />
           </TabsContent>
 
-          <TabsContent value="history" className="flex-1 flex flex-col mt-0">
+          <TabsContent value="history" className="flex-1 flex flex-col mt-0 min-h-0 overflow-auto">
             <HistoryTab
               onLoadToInput={handleLoadToInput}
               onLoadToPromptTab={handleLoadToPromptTab}
             />
           </TabsContent>
 
-          <TabsContent value="artifacts" className="flex-1 flex flex-col mt-0">
+          <TabsContent value="artifacts" className="flex-1 flex flex-col mt-0 min-h-0 overflow-auto">
             <ArtifactsTab onInsertArtifact={handleInsertArtifact} />
           </TabsContent>
         </Tabs>

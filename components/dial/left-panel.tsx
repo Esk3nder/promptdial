@@ -16,6 +16,8 @@ import {
   Coins,
   Check,
 } from 'lucide-react';
+import type { DialUIState } from '@/lib/dial/types';
+import { DialSettingsSection } from './dial-settings-section';
 import {
   Tooltip,
   TooltipContent,
@@ -29,6 +31,12 @@ interface LeftPanelProps {
   onPromptChange: (value: string) => void;
   model: string;
   onModelChange: (value: string) => void;
+
+  // Dial settings
+  dialSettings: DialUIState;
+  onDialSettingsChange: (settings: DialUIState) => void;
+  isDialSettingsOpen: boolean;
+  onDialSettingsOpenChange: (open: boolean) => void;
 
   // Action
   onOptimize: () => void;
@@ -54,6 +62,10 @@ export const LeftPanel = forwardRef<HTMLTextAreaElement, LeftPanelProps>(
       onPromptChange,
       model,
       onModelChange,
+      dialSettings,
+      onDialSettingsChange,
+      isDialSettingsOpen,
+      onDialSettingsOpenChange,
       onOptimize,
       isOptimizing,
       loadingPhase = 'idle',
@@ -153,26 +165,37 @@ export const LeftPanel = forwardRef<HTMLTextAreaElement, LeftPanelProps>(
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="claude-3-haiku-20240307">
+                <SelectItem value="claude-haiku-4-20250514">
                   <div className="flex items-center gap-2">
                     <Zap className="h-4 w-4 text-muted-foreground" />
-                    Claude Haiku (Fast)
+                    Claude Haiku 4 (Fast)
                   </div>
                 </SelectItem>
-                <SelectItem value="claude-3-5-sonnet-20241022">
+                <SelectItem value="claude-sonnet-4-20250514">
                   <div className="flex items-center gap-2">
                     <Target className="h-4 w-4 text-muted-foreground" />
-                    Claude Sonnet (Balanced)
+                    Claude Sonnet 4 (Balanced)
                   </div>
                 </SelectItem>
-                <SelectItem value="claude-3-opus-20240229">
+                <SelectItem value="claude-opus-4-20250514">
                   <div className="flex items-center gap-2">
                     <Brain className="h-4 w-4 text-muted-foreground" />
-                    Claude Opus (Powerful)
+                    Claude Opus 4 (Powerful)
                   </div>
                 </SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Advanced Settings (Dial Controls) */}
+          <div className="border rounded-lg">
+            <DialSettingsSection
+              dialSettings={dialSettings}
+              onDialSettingsChange={onDialSettingsChange}
+              isOpen={isDialSettingsOpen}
+              onOpenChange={onDialSettingsOpenChange}
+              disabled={isOptimizing}
+            />
           </div>
 
           {/* Prompt Input */}
