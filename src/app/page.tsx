@@ -86,7 +86,7 @@ export default function Home() {
               min={0}
               step={100}
               value={tokenBudget}
-              onChange={(e) => setTokenBudget(Number(e.target.value))}
+              onChange={(e) => setTokenBudget(Math.max(0, Number(e.target.value) || 0))}
               placeholder="0 = unlimited"
               className="w-24 rounded border border-gray-700 bg-gray-900 px-2 py-1 text-xs text-gray-200 focus:border-indigo-500 focus:outline-none"
             />

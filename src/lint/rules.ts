@@ -51,7 +51,7 @@ export const rules: LintRule[] = [
     name: "Weak Template Match",
     check: (spec) => {
       const templateKeywords: Record<string, string[]> = {
-        "academic-report": ["research", "study", "analysis", "findings", "methodology", "hypothesis", "literature", "academic", "paper", "thesis"],
+        "academic-report": ["research", "study", "analysis", "findings", "methodology", "hypothesis", "literature", "academic", "paper", "thesis", "report"],
         "prd": ["product", "feature", "requirements", "user story", "stakeholder", "roadmap", "specification", "mvp", "sprint"],
         "decision-memo": ["decision", "options", "tradeoff", "recommend", "evaluate", "compare", "choose", "pros", "cons", "alternative"],
         "critique": ["critique", "review", "evaluate", "strengths", "weaknesses", "feedback", "assess", "opinion", "argument"],

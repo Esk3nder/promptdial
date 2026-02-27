@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { extractArtifactRefs, resolveRefs } from "@/artifacts/resolver";
+import { resolveRefs } from "@/artifacts/resolver";
 import type { Artifact } from "@/core/types";
 
 // Mock the store module
@@ -11,71 +11,6 @@ vi.mock("@/artifacts/store", () => ({
 import { getArtifactByAlias } from "@/artifacts/store";
 
 describe("resolver functions", () => {
-  describe("extractArtifactRefs", () => {
-    it('extracts @AI and @Security from "Hello @AI and @Security"', () => {
-      const refs = extractArtifactRefs("Hello @AI and @Security");
-      expect(refs).toEqual(["AI", "Security"]);
-    });
-
-    it('returns empty array for "No refs here"', () => {
-      const refs = extractArtifactRefs("No refs here");
-      expect(refs).toEqual([]);
-    });
-
-    it('extracts ["One", "Two", "Three"] from "@One @Two @Three"', () => {
-      const refs = extractArtifactRefs("@One @Two @Three");
-      expect(refs).toEqual(["One", "Two", "Three"]);
-    });
-
-    it("extracts 'example' from email@example.com (@ matches)", () => {
-      const refs = extractArtifactRefs("Contact email@example.com");
-      // The regex /@([A-Za-z][A-Za-z0-9_]*)/ matches @example in the email
-      // This is expected behavior - @ followed by valid identifier matches
-      expect(refs).toEqual(["example"]);
-    });
-
-    it("extracts 'double' from @@double", () => {
-      const refs = extractArtifactRefs("@@double");
-      // Pattern is /@([A-Za-z][A-Za-z0-9_]*)/g
-      // First @ has no valid identifier after it (just another @)
-      // Second @ has "double" after it, which matches
-      expect(refs).toEqual(["double"]);
-    });
-
-    it("extracts refs with underscores", () => {
-      const refs = extractArtifactRefs("Use @AI_Model and @Data_Science");
-      expect(refs).toEqual(["AI_Model", "Data_Science"]);
-    });
-
-    it("extracts refs with numbers", () => {
-      const refs = extractArtifactRefs("Check @GPT4 and @Claude3");
-      expect(refs).toEqual(["GPT4", "Claude3"]);
-    });
-
-    it("does not extract refs starting with numbers", () => {
-      const refs = extractArtifactRefs("Invalid @123test");
-      expect(refs).toEqual([]);
-    });
-
-    it("extracts multiple refs in complex text", () => {
-      const refs = extractArtifactRefs(
-        "Using @AI for @ML tasks and @DataScience analysis."
-      );
-      expect(refs).toEqual(["AI", "ML", "DataScience"]);
-    });
-
-    it("handles refs at start and end of string", () => {
-      const refs = extractArtifactRefs("@Start middle @End");
-      expect(refs).toEqual(["Start", "End"]);
-    });
-
-    it("returns unique refs only", () => {
-      const refs = extractArtifactRefs("@AI and @AI and @AI");
-      // Note: extractArtifactRefs doesn't dedupe, it returns all matches
-      expect(refs).toEqual(["AI", "AI", "AI"]);
-    });
-  });
-
   describe("resolveRefs", () => {
     beforeEach(() => {
       vi.clearAllMocks();

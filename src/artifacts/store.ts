@@ -66,5 +66,5 @@ export async function initSeedArtifacts(): Promise<void> {
     }
   }
 
-  await db.artifacts.bulkAdd(seeds);
+  await db.artifacts.bulkPut(seeds);
 }

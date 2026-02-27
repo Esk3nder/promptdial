@@ -47,7 +47,7 @@ export function validateAndRepairSpec(data: unknown): ValidationResult<PromptSpe
   }
 
   // Repair: missing or invalid dial → default to 3
-  if (typeof repaired.dial !== "number" || repaired.dial < 0 || repaired.dial > 5) {
+  if (typeof repaired.dial !== "number" || !Number.isFinite(repaired.dial) || repaired.dial < 0 || repaired.dial > 5) {
     repaired.dial = 3 as DialLevel;
     didRepair = true;
   }
