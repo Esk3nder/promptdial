@@ -1,0 +1,48 @@
+{
+  "id": "seed-startups",
+  "name": "Startups",
+  "aliases": ["startups", "startup"],
+  "description": "Startup strategy, fundraising, growth, and team building",
+  "blocks": [
+    {
+      "id": "startup-validation",
+      "label": "Market Validation",
+      "content": "Market validation determines product-market fit before scaling. Key methods: customer development interviews (talk to 50+ potential customers before building), landing page tests (measure signup conversion on value proposition), concierge MVP (manually deliver the service to validate demand), Wizard of Oz testing (human-powered backend behind automated frontend), and smoke tests (advertise the product before it exists to gauge interest). Key signals of product-market fit: organic word-of-mouth growth, users complaining when the product is down, and retention curves that flatten rather than decline to zero.",
+      "tags": ["validation", "market", "methodology"],
+      "priority": 90,
+      "doNotSend": false,
+      "tokenCount": 102
+    },
+    {
+      "id": "startup-fundraising",
+      "label": "Fundraising",
+      "content": "Startup fundraising stages: Pre-seed ($100K-$500K from angels, for idea validation), Seed ($500K-$3M from seed funds, for MVP and initial traction), Series A ($5M-$15M from VCs, for product-market fit and repeatable growth), and beyond. Pitch deck essentials: problem, solution, market size (TAM/SAM/SOM), business model, traction, team, ask and use of funds. SAFE notes and convertible notes are common pre-seed/seed instruments. Due diligence covers financials, IP, team backgrounds, cap table, and customer references.",
+      "tags": ["fundraising", "finance", "strategy"],
+      "priority": 85,
+      "doNotSend": false,
+      "tokenCount": 98
+    },
+    {
+      "id": "startup-growth",
+      "label": "Growth Strategy",
+      "content": "Growth frameworks for startups: viral loops (user actions naturally invite new users), content marketing (SEO-driven inbound), product-led growth (free tier drives adoption and upsell), sales-led growth (direct enterprise outreach), and partnerships/integrations. Growth accounting: new users + resurrected users - churned users = net growth. Focus on one primary growth channel initially, optimize it, then layer in additional channels. Measure CAC (Customer Acquisition Cost), LTV (Lifetime Value), and payback period. LTV/CAC ratio above 3:1 indicates healthy unit economics.",
+      "tags": ["growth", "marketing", "strategy"],
+      "priority": 80,
+      "doNotSend": false,
+      "tokenCount": 96
+    },
+    {
+      "id": "startup-team",
+      "label": "Team Building",
+      "content": "Early-stage team building principles: hire for slope over intercept (learning speed over current knowledge), maintain founder-market fit (deep understanding of the problem space), build complementary founding teams (technical + business), preserve equity carefully (standard vesting is 4 years with 1-year cliff). Culture crystallizes early and is nearly impossible to change later. First ten hires define company DNA. Remote-first requires intentional documentation culture. Hiring criteria: competence, culture contribution, and motivation alignment with mission.",
+      "tags": ["team", "hiring", "culture"],
+      "priority": 70,
+      "doNotSend": false,
+      "tokenCount": 88
+    }
+  ],
+  "version": 1,
+  "createdAt": "2025-01-01T00:00:00.000Z",
+  "updatedAt": "2025-01-01T00:00:00.000Z",
+  "isSeed": true
+}

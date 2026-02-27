@@ -1,0 +1,48 @@
+{
+  "id": "seed-ux-design",
+  "name": "UX Design",
+  "aliases": ["uxdesign", "ux", "ux-design"],
+  "description": "User experience research, information architecture, accessibility, and design systems",
+  "blocks": [
+    {
+      "id": "ux-research",
+      "label": "User Research Methods",
+      "content": "User research grounds design decisions in evidence. Discovery methods: contextual inquiry (observe users in their natural environment), diary studies (longitudinal behavior tracking), stakeholder interviews, competitive audits. Evaluative methods: moderated usability testing (5-8 participants identify 80% of issues), unmoderated remote testing (larger sample, quantitative metrics), A/B testing (statistically validate design choices), heuristic evaluation (expert review against Nielsen's 10 heuristics). Synthesize findings into empathy maps, journey maps, and jobs-to-be-done statements.",
+      "tags": ["research", "methodology", "users"],
+      "priority": 90,
+      "doNotSend": false,
+      "tokenCount": 92
+    },
+    {
+      "id": "ux-ia",
+      "label": "Information Architecture",
+      "content": "Information architecture organizes content for findability and understanding. Core techniques: card sorting (open for discovery, closed for validation of proposed categories), tree testing (validate navigation structure without visual design influence), site mapping (hierarchical content organization), and user flow diagrams (task completion paths). Principles: progressive disclosure (reveal complexity gradually), recognition over recall (visible options over memorized commands), consistent mental models (match user expectations), and clear labeling (use user language, not internal jargon).",
+      "tags": ["architecture", "navigation", "structure"],
+      "priority": 80,
+      "doNotSend": false,
+      "tokenCount": 85
+    },
+    {
+      "id": "ux-accessibility",
+      "label": "Accessibility",
+      "content": "Accessibility (a11y) ensures products work for everyone. WCAG 2.1 AA guidelines: Perceivable (text alternatives, captions, sufficient color contrast 4.5:1 for normal text), Operable (keyboard navigation, no seizure-inducing content, enough time for interactions), Understandable (readable content, predictable behavior, error prevention), Robust (compatible with assistive technologies, valid markup). Test with screen readers (VoiceOver, NVDA), keyboard-only navigation, and automated tools (axe, Lighthouse). Design for permanent, temporary, and situational disabilities.",
+      "tags": ["accessibility", "inclusive", "standards"],
+      "priority": 85,
+      "doNotSend": false,
+      "tokenCount": 88
+    },
+    {
+      "id": "ux-design-systems",
+      "label": "Design Systems",
+      "content": "Design systems provide reusable components and shared design language. Architecture layers: design tokens (colors, typography, spacing as platform-agnostic variables), core components (buttons, inputs, cards with documented props and states), patterns (common UI solutions: forms, navigation, data display), and templates (page-level layouts). Governance: contribution model (who can add/modify components), versioning strategy (semantic versioning for breaking changes), documentation standards (usage guidelines, do/don't examples, code snippets), and adoption metrics (component coverage, consistency scores).",
+      "tags": ["design-systems", "components", "standards"],
+      "priority": 75,
+      "doNotSend": false,
+      "tokenCount": 90
+    }
+  ],
+  "version": 1,
+  "createdAt": "2025-01-01T00:00:00.000Z",
+  "updatedAt": "2025-01-01T00:00:00.000Z",
+  "isSeed": true
+}

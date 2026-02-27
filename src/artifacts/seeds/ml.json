@@ -1,0 +1,48 @@
+{
+  "id": "seed-ml",
+  "name": "Machine Learning",
+  "aliases": ["machinelearning", "ml", "machine-learning"],
+  "description": "Machine learning methodologies, evaluation, and operations",
+  "blocks": [
+    {
+      "id": "ml-paradigms",
+      "label": "Learning Paradigms",
+      "content": "Machine learning divides into three core paradigms. Supervised learning trains on labeled input-output pairs for classification (discrete labels) and regression (continuous values). Unsupervised learning discovers hidden structure: clustering (k-means, DBSCAN), dimensionality reduction (PCA, t-SNE, UMAP), and density estimation. Reinforcement learning optimizes sequential decisions through reward signals, using policy gradients, Q-learning, or actor-critic methods to balance exploration and exploitation.",
+      "tags": ["paradigms", "overview", "foundations"],
+      "priority": 90,
+      "doNotSend": false,
+      "tokenCount": 75
+    },
+    {
+      "id": "ml-evaluation",
+      "label": "Model Evaluation",
+      "content": "Robust evaluation requires proper methodology: train/validation/test splits, k-fold cross-validation for small datasets, and stratified sampling for imbalanced classes. Key metrics by task: accuracy, precision, recall, F1 for classification; MSE, MAE, R-squared for regression; AUC-ROC for ranking. Common pitfalls include data leakage, overfitting to validation sets, and ignoring distribution shift between training and production data.",
+      "tags": ["evaluation", "metrics", "methodology"],
+      "priority": 80,
+      "doNotSend": false,
+      "tokenCount": 68
+    },
+    {
+      "id": "ml-features",
+      "label": "Feature Engineering",
+      "content": "Feature engineering transforms raw data into model-ready representations. Techniques include: normalization and standardization, one-hot and target encoding for categoricals, polynomial and interaction features, log transforms for skewed distributions, time-based features (cyclical encoding, lag features), and text vectorization (TF-IDF, embeddings). Feature selection methods: mutual information, L1 regularization, recursive feature elimination, and domain-driven selection.",
+      "tags": ["features", "data", "preprocessing"],
+      "priority": 70,
+      "doNotSend": false,
+      "tokenCount": 65
+    },
+    {
+      "id": "ml-ops",
+      "label": "MLOps",
+      "content": "MLOps bridges model development and production deployment. Core practices: version control for data and models (DVC, MLflow), reproducible training pipelines, automated testing (data validation, model performance gates), CI/CD for ML (train-evaluate-deploy loops), model monitoring (drift detection, performance degradation alerts), feature stores for consistent feature computation, and A/B testing frameworks for safe rollouts. Infrastructure spans experiment tracking, model registries, and serving platforms.",
+      "tags": ["operations", "deployment", "infrastructure"],
+      "priority": 65,
+      "doNotSend": false,
+      "tokenCount": 72
+    }
+  ],
+  "version": 1,
+  "createdAt": "2025-01-01T00:00:00.000Z",
+  "updatedAt": "2025-01-01T00:00:00.000Z",
+  "isSeed": true
+}

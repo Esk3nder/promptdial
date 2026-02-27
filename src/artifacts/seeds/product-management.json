@@ -1,0 +1,48 @@
+{
+  "id": "seed-product-management",
+  "name": "Product Management",
+  "aliases": ["productmanagement", "pm", "product-management"],
+  "description": "Product discovery, prioritization, metrics, and user research",
+  "blocks": [
+    {
+      "id": "pm-discovery",
+      "label": "Product Discovery",
+      "content": "Product discovery validates whether to build something before investing in development. Core methods: customer interviews (Jobs-to-be-Done framework to uncover underlying motivations), opportunity solution trees (mapping desired outcomes to potential solutions), rapid prototyping (test concepts with minimal investment), assumption mapping (identify riskiest assumptions and test them first), and competitive analysis. Discovery answers four risks: value (will customers use it?), usability (can they figure it out?), feasibility (can we build it?), and viability (does it work for our business?).",
+      "tags": ["discovery", "research", "methodology"],
+      "priority": 90,
+      "doNotSend": false,
+      "tokenCount": 95
+    },
+    {
+      "id": "pm-prioritization",
+      "label": "Prioritization Frameworks",
+      "content": "Prioritization frameworks for systematic decision-making: RICE (Reach x Impact x Confidence / Effort) for quantitative scoring, ICE (Impact x Confidence x Ease) for faster estimation, MoSCoW (Must-have, Should-have, Could-have, Won't-have) for scope definition, Kano model (categorizes features as basic, performance, or delight), weighted scoring against strategic objectives, and opportunity scoring (importance vs. satisfaction gaps). Best practice: combine quantitative frameworks with qualitative judgment and strategic alignment.",
+      "tags": ["prioritization", "frameworks", "strategy"],
+      "priority": 85,
+      "doNotSend": false,
+      "tokenCount": 82
+    },
+    {
+      "id": "pm-metrics",
+      "label": "Product Metrics",
+      "content": "Product metrics hierarchy: North Star metric (single metric reflecting core value delivery), AARRR pirate metrics (Acquisition, Activation, Retention, Revenue, Referral) for growth stage analysis, engagement metrics (DAU/MAU ratio, session frequency, feature adoption), health metrics (NPS, CSAT, CES for customer satisfaction), and guardrail metrics (performance, error rates, support tickets). Leading indicators predict future outcomes; lagging indicators confirm past results. Instrument metrics before launch, not after.",
+      "tags": ["metrics", "analytics", "measurement"],
+      "priority": 80,
+      "doNotSend": false,
+      "tokenCount": 84
+    },
+    {
+      "id": "pm-user-research",
+      "label": "User Research",
+      "content": "User research methods by phase: generative research (ethnographic studies, diary studies, contextual inquiry) to understand problem space, evaluative research (usability testing, A/B tests, tree testing) to validate solutions. Quantitative methods (surveys, analytics, funnel analysis) measure what users do; qualitative methods (interviews, think-aloud protocols, card sorting) reveal why. Recruit 5-8 participants per usability study for 80% of issues. Synthesize findings into personas, journey maps, and actionable insights.",
+      "tags": ["research", "users", "methodology"],
+      "priority": 75,
+      "doNotSend": false,
+      "tokenCount": 88
+    }
+  ],
+  "version": 1,
+  "createdAt": "2025-01-01T00:00:00.000Z",
+  "updatedAt": "2025-01-01T00:00:00.000Z",
+  "isSeed": true
+}

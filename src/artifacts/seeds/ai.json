@@ -1,0 +1,48 @@
+{
+  "id": "seed-ai",
+  "name": "Artificial Intelligence",
+  "aliases": ["artificialintelligence", "ai", "artificial-intelligence"],
+  "description": "Core concepts and frameworks in artificial intelligence",
+  "blocks": [
+    {
+      "id": "ai-foundations",
+      "label": "AI Foundations",
+      "content": "Artificial Intelligence encompasses the development of systems that can perform tasks typically requiring human intelligence. Key areas include: machine perception, natural language understanding, reasoning, learning from experience, and decision-making under uncertainty. Modern AI is primarily driven by machine learning approaches, particularly deep learning with neural networks.",
+      "tags": ["overview", "foundations", "introduction"],
+      "priority": 90,
+      "doNotSend": false,
+      "tokenCount": 52
+    },
+    {
+      "id": "ai-paradigms",
+      "label": "AI Paradigms",
+      "content": "The field spans several paradigms: symbolic AI (rule-based, knowledge representation), connectionist AI (neural networks, deep learning), evolutionary computation, probabilistic methods (Bayesian networks, probabilistic programming), and hybrid approaches. Each paradigm has strengths: symbolic AI excels at explainability, connectionist AI at pattern recognition, and probabilistic methods at uncertainty quantification.",
+      "tags": ["methodology", "paradigms", "technical"],
+      "priority": 70,
+      "doNotSend": false,
+      "tokenCount": 55
+    },
+    {
+      "id": "ai-ethics",
+      "label": "AI Ethics & Safety",
+      "content": "Critical considerations include: algorithmic bias and fairness, transparency and explainability, privacy preservation, autonomous decision-making accountability, alignment with human values, dual-use concerns, labor market disruption, and concentration of power. Frameworks for responsible AI development include IEEE's Ethically Aligned Design, the EU AI Act risk-based approach, and NIST's AI Risk Management Framework.",
+      "tags": ["ethics", "safety", "governance"],
+      "priority": 60,
+      "doNotSend": false,
+      "tokenCount": 60
+    },
+    {
+      "id": "ai-capabilities",
+      "label": "Current AI Capabilities",
+      "content": "State-of-the-art capabilities: Large language models demonstrate broad reasoning and generation abilities. Vision models achieve superhuman performance in medical imaging and object recognition. Multimodal models combine text, image, audio, and video understanding. AI agents can autonomously complete multi-step tasks. Code generation models assist professional software development. Scientific AI accelerates drug discovery, materials science, and mathematical proof generation.",
+      "tags": ["capabilities", "state-of-art", "current"],
+      "priority": 80,
+      "doNotSend": false,
+      "tokenCount": 70
+    }
+  ],
+  "version": 1,
+  "createdAt": "2025-01-01T00:00:00.000Z",
+  "updatedAt": "2025-01-01T00:00:00.000Z",
+  "isSeed": true
+}

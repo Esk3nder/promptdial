@@ -1,65 +1,194 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
+import type { DialLevel, TemplateId } from "@/core/types";
+import { useCompiler } from "@/app/hooks/useCompiler";
+import { useArtifacts } from "@/app/hooks/useArtifacts";
+import Editor from "@/app/components/Editor";
+import TemplatePicker from "@/app/components/TemplatePicker";
+import DialControl from "@/app/components/DialControl";
+import ArtifactChips from "@/app/components/ArtifactChips";
+import OutputPanel from "@/app/components/OutputPanel";
+
+const LintPanel = dynamic(() => import("@/app/components/LintPanel"), {
+  ssr: false,
+});
+const InjectionPanel = dynamic(
+  () => import("@/app/components/InjectionPanel"),
+  { ssr: false }
+);
+const ArtifactManagerPanel = dynamic(
+  () => import("@/app/components/ArtifactManager"),
+  { ssr: false, loading: () => <div className="text-center text-sm text-gray-500 py-4">Loading...</div> }
+);
 
 export default function Home() {
+  const [rawInput, setRawInput] = useState("");
+  const [dial, setDial] = useState<DialLevel>(3);
+  const [templateOverride, setTemplateOverride] = useState<
+    TemplateId | undefined
+  >(undefined);
+  const [tokenBudget, setTokenBudget] = useState(0);
+  const [showArtifactManager, setShowArtifactManager] = useState(false);
+
+  const { output, compiling, error, compile } = useCompiler();
+  const { artifacts, create, update, remove } = useArtifacts();
+
+  // Trigger compilation on input changes
+  useEffect(() => {
+    if (!rawInput.trim()) return;
+    compile({
+      rawInput,
+      dial,
+      tokenBudget,
+      templateOverride,
+    });
+  }, [rawInput, dial, tokenBudget, templateOverride, compile]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        if (rawInput.trim()) {
+          compile({
+            rawInput,
+            dial,
+            tokenBudget,
+            templateOverride,
+          });
+        }
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [rawInput, dial, tokenBudget, templateOverride, compile]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <div className="flex min-h-screen flex-col">
+      {/* Header */}
+      <header className="flex items-center justify-between border-b border-gray-800 px-6 py-3">
+        <h1 className="text-lg font-bold tracking-tight text-white">
+          Prompt Dial
+        </h1>
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-2 text-xs text-gray-400">
+            Token budget
+            <input
+              type="number"
+              min={0}
+              step={100}
+              value={tokenBudget}
+              onChange={(e) => setTokenBudget(Number(e.target.value))}
+              placeholder="0 = unlimited"
+              className="w-24 rounded border border-gray-700 bg-gray-900 px-2 py-1 text-xs text-gray-200 focus:border-indigo-500 focus:outline-none"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </label>
         </div>
-      </main>
+      </header>
+
+      {/* Main content */}
+      <div className="flex flex-1 flex-col md:flex-row">
+        {/* Left: Input Panel */}
+        <div className="flex flex-col gap-4 border-b border-gray-800 p-4 md:w-2/5 md:border-b-0 md:border-r">
+          <div>
+            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-gray-500">
+              Template
+            </label>
+            <TemplatePicker
+              value={templateOverride}
+              onChange={setTemplateOverride}
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-gray-500">
+              Dial Level
+            </label>
+            <DialControl
+              value={dial}
+              onChange={(v) => setDial(v as DialLevel)}
+            />
+          </div>
+
+          <div className="flex-1">
+            <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-gray-500">
+              Input
+            </label>
+            <Editor
+              value={rawInput}
+              onChange={setRawInput}
+              artifacts={artifacts.map((a) => ({
+                id: a.id,
+                name: a.name,
+                aliases: a.aliases,
+              }))}
+            />
+          </div>
+
+          {output?.spec.artifactRefs && output.spec.artifactRefs.length > 0 && (
+            <div>
+              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-gray-500">
+                Referenced Artifacts
+              </label>
+              <ArtifactChips refs={output.spec.artifactRefs} />
+            </div>
+          )}
+
+          {error && (
+            <div className="rounded-lg border border-red-800 bg-red-950/50 p-3 text-sm text-red-300">
+              {error}
+            </div>
+          )}
+        </div>
+
+        {/* Right: Output Panel */}
+        <div className="flex flex-1 flex-col p-4 md:w-3/5">
+          <div className="flex-1 rounded-lg border border-gray-800 bg-gray-900 p-4">
+            <OutputPanel
+              rendered={output?.rendered ?? ""}
+              spec={output?.spec ?? null}
+              compiling={compiling}
+            />
+          </div>
+
+          {/* Lint & Injection panels */}
+          {output && (
+            <div className="mt-3 grid gap-3 md:grid-cols-2">
+              {output.lint && (
+                <div className="rounded-lg border border-gray-800 bg-gray-900 p-3">
+                  <LintPanel report={output.lint} />
+                </div>
+              )}
+              {output.injection && (
+                <div className="rounded-lg border border-gray-800 bg-gray-900 p-3">
+                  <InjectionPanel report={output.injection} />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom: Artifact Manager toggle */}
+      <div className="border-t border-gray-800">
+        <button
+          onClick={() => setShowArtifactManager(!showArtifactManager)}
+          className="flex w-full items-center justify-center gap-2 px-4 py-2 text-sm text-gray-400 transition-colors hover:bg-gray-900 hover:text-gray-200"
+        >
+          <span>{showArtifactManager ? "▼" : "▲"}</span>
+          Artifact Manager
+          <span className="rounded-full bg-gray-800 px-2 py-0.5 text-xs">
+            {artifacts.length}
+          </span>
+        </button>
+        {showArtifactManager && (
+          <div className="border-t border-gray-800 p-4">
+            <ArtifactManagerPanel />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

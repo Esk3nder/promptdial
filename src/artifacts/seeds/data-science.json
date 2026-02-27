@@ -1,0 +1,48 @@
+{
+  "id": "seed-data-science",
+  "name": "Data Science",
+  "aliases": ["datascience", "ds", "data-science"],
+  "description": "Statistical methods, data pipelines, visualization, and experimental design",
+  "blocks": [
+    {
+      "id": "ds-statistics",
+      "label": "Statistical Methods",
+      "content": "Core statistical methods for data science: hypothesis testing (t-tests, chi-square, ANOVA) with proper multiple comparison corrections (Bonferroni, Benjamini-Hochberg), regression analysis (linear, logistic, polynomial with regularization), Bayesian inference (prior specification, posterior estimation, credible intervals), non-parametric methods (Mann-Whitney, Kruskal-Wallis for non-normal distributions), and causal inference (difference-in-differences, instrumental variables, propensity score matching). Always check assumptions: normality, homoscedasticity, independence.",
+      "tags": ["statistics", "methodology", "foundations"],
+      "priority": 90,
+      "doNotSend": false,
+      "tokenCount": 85
+    },
+    {
+      "id": "ds-pipelines",
+      "label": "Data Pipelines",
+      "content": "Modern data pipeline architecture: ingestion layer (batch via Spark/dbt, streaming via Kafka/Flink), storage layer (data lake for raw data, data warehouse for transformed data, lakehouse for unified), transformation layer (ELT over ETL, SQL-based transformations with dbt, schema evolution handling), quality layer (Great Expectations or Soda for validation, data contracts between teams), and serving layer (materialized views, feature stores, OLAP cubes). Orchestration via Airflow, Dagster, or Prefect. Idempotent operations enable safe reruns.",
+      "tags": ["pipelines", "engineering", "infrastructure"],
+      "priority": 80,
+      "doNotSend": false,
+      "tokenCount": 90
+    },
+    {
+      "id": "ds-visualization",
+      "label": "Data Visualization",
+      "content": "Effective data visualization principles: choose chart type by data relationship (comparison: bar charts; distribution: histograms/box plots; composition: stacked areas; relationship: scatter plots; temporal: line charts). Apply Tufte's data-ink ratio (maximize information, minimize decoration). Ensure accessibility: colorblind-safe palettes (viridis, Color Brewer), sufficient contrast, text alternatives. Tools: Matplotlib/Seaborn for publication, Plotly/Altair for interactive, D3.js for custom web visualizations. Label axes, include units, and provide context through annotations.",
+      "tags": ["visualization", "communication", "design"],
+      "priority": 75,
+      "doNotSend": false,
+      "tokenCount": 88
+    },
+    {
+      "id": "ds-experiments",
+      "label": "Experimental Design",
+      "content": "Rigorous experimental design: define hypothesis and success metrics before starting, calculate sample size using power analysis (typically 80% power, 5% significance), randomize assignment to control for confounders, use stratification for known covariates, run experiments for full business cycles to avoid temporal bias. Sequential testing (with alpha spending functions) enables early stopping without inflating false positive rates. Analyze with intention-to-treat for unbiased estimates. Document pre-registered analysis plans to prevent p-hacking and HARKing.",
+      "tags": ["experiments", "methodology", "testing"],
+      "priority": 70,
+      "doNotSend": false,
+      "tokenCount": 82
+    }
+  ],
+  "version": 1,
+  "createdAt": "2025-01-01T00:00:00.000Z",
+  "updatedAt": "2025-01-01T00:00:00.000Z",
+  "isSeed": true
+}

@@ -1,0 +1,48 @@
+{
+  "id": "seed-security",
+  "name": "Security",
+  "aliases": ["security", "cybersecurity", "infosec"],
+  "description": "Application security, threat modeling, and incident response",
+  "blocks": [
+    {
+      "id": "sec-threat-modeling",
+      "label": "Threat Modeling",
+      "content": "Threat modeling systematically identifies security risks before they become vulnerabilities. STRIDE framework categorizes threats: Spoofing (identity), Tampering (data integrity), Repudiation (deniability), Information Disclosure (confidentiality), Denial of Service (availability), Elevation of Privilege (authorization). Process: decompose the system into components, identify trust boundaries, enumerate threats per component, rate risks using DREAD or CVSS, and prioritize mitigations. Perform threat modeling at design time, not after deployment.",
+      "tags": ["threat-modeling", "methodology", "foundations"],
+      "priority": 90,
+      "doNotSend": false,
+      "tokenCount": 82
+    },
+    {
+      "id": "sec-owasp",
+      "label": "OWASP Top 10",
+      "content": "OWASP Top 10 web application security risks: Broken Access Control (enforce least privilege, deny by default), Cryptographic Failures (use modern algorithms, proper key management), Injection (parameterized queries, input validation), Insecure Design (threat model, secure design patterns), Security Misconfiguration (hardened defaults, remove unused features), Vulnerable Components (dependency scanning, SBOMs), Authentication Failures (MFA, credential stuffing protection), Software Integrity Failures (code signing, supply chain verification), Logging Failures (audit trails, tamper-evident logs), SSRF (allowlist outbound requests, network segmentation).",
+      "tags": ["owasp", "web", "vulnerabilities"],
+      "priority": 85,
+      "doNotSend": false,
+      "tokenCount": 95
+    },
+    {
+      "id": "sec-zero-trust",
+      "label": "Zero Trust Architecture",
+      "content": "Zero Trust operates on 'never trust, always verify' principles: verify explicitly (authenticate and authorize every request), use least-privilege access (just-in-time and just-enough-access), assume breach (minimize blast radius, segment access, verify end-to-end encryption). Implementation pillars: strong identity verification (MFA, device health), microsegmentation (limit lateral movement), continuous monitoring and validation, encryption everywhere (in transit and at rest), and policy-based access decisions using real-time context signals.",
+      "tags": ["architecture", "zero-trust", "strategy"],
+      "priority": 75,
+      "doNotSend": false,
+      "tokenCount": 80
+    },
+    {
+      "id": "sec-incident-response",
+      "label": "Incident Response",
+      "content": "Incident response follows structured phases: Preparation (runbooks, communication templates, tool readiness), Detection and Analysis (alert triage, severity classification, scope determination), Containment (short-term isolation, long-term remediation planning), Eradication (remove threat actor access, patch vulnerabilities), Recovery (restore services, verify integrity, monitor for recurrence), Post-Incident (blameless retrospective, timeline documentation, process improvements). Maintain an incident commander rotation, pre-established communication channels, and regularly rehearse with tabletop exercises.",
+      "tags": ["incident-response", "operations", "process"],
+      "priority": 70,
+      "doNotSend": false,
+      "tokenCount": 86
+    }
+  ],
+  "version": 1,
+  "createdAt": "2025-01-01T00:00:00.000Z",
+  "updatedAt": "2025-01-01T00:00:00.000Z",
+  "isSeed": true
+}

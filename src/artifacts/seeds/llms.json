@@ -1,0 +1,48 @@
+{
+  "id": "seed-llms",
+  "name": "Large Language Models",
+  "aliases": ["largelanguagemodels", "llms", "llm", "large-language-models"],
+  "description": "Architecture, training, and usage of large language models",
+  "blocks": [
+    {
+      "id": "llm-architecture",
+      "label": "Transformer Architecture",
+      "content": "Modern LLMs are built on the Transformer architecture, which relies on self-attention mechanisms to capture long-range dependencies in sequences. Key components: multi-head attention (parallel attention across different representation subspaces), positional encoding (RoPE, ALiBi for position awareness), layer normalization, feed-forward networks with activation functions (GeLU, SwiGLU). Scaling laws show predictable performance improvements with increased parameters, training data, and compute budget.",
+      "tags": ["architecture", "technical", "foundations"],
+      "priority": 90,
+      "doNotSend": false,
+      "tokenCount": 78
+    },
+    {
+      "id": "llm-training",
+      "label": "Training Pipeline",
+      "content": "LLM training proceeds in stages: pretraining on large web corpora using next-token prediction (causal language modeling), supervised fine-tuning (SFT) on curated instruction-response pairs, and alignment via RLHF (Reinforcement Learning from Human Feedback) or DPO (Direct Preference Optimization). Key considerations: data quality and deduplication, curriculum learning, learning rate scheduling (warmup + cosine decay), distributed training across GPU clusters (FSDP, DeepSpeed, Megatron-LM), and mixed-precision training for efficiency.",
+      "tags": ["training", "methodology", "technical"],
+      "priority": 80,
+      "doNotSend": false,
+      "tokenCount": 85
+    },
+    {
+      "id": "llm-prompting",
+      "label": "Prompting Techniques",
+      "content": "Effective prompting strategies: zero-shot (direct instruction), few-shot (in-context examples), chain-of-thought (step-by-step reasoning), self-consistency (multiple reasoning paths with majority vote), tree-of-thought (structured exploration of solution space), ReAct (interleaving reasoning and actions), and meta-prompting (using the model to generate better prompts). System prompts establish behavioral constraints. Structured output formats (JSON, XML) improve parsability. Temperature and top-p control generation diversity.",
+      "tags": ["prompting", "usage", "techniques"],
+      "priority": 85,
+      "doNotSend": false,
+      "tokenCount": 80
+    },
+    {
+      "id": "llm-limitations",
+      "label": "Known Limitations",
+      "content": "LLM limitations practitioners must account for: hallucination (generating plausible but factually incorrect content), knowledge cutoff (no awareness of events after training data), context window constraints (limited input length, though expanding rapidly), arithmetic and precise counting weaknesses, sensitivity to prompt phrasing, sycophancy bias (tendency to agree with users), difficulty with spatial and temporal reasoning, and inability to truly learn from single conversations without fine-tuning.",
+      "tags": ["limitations", "safety", "evaluation"],
+      "priority": 75,
+      "doNotSend": false,
+      "tokenCount": 76
+    }
+  ],
+  "version": 1,
+  "createdAt": "2025-01-01T00:00:00.000Z",
+  "updatedAt": "2025-01-01T00:00:00.000Z",
+  "isSeed": true
+}
