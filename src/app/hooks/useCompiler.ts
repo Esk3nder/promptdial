@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import type { CompileInput, CompileOutput } from "@/core/types";
 
 export function useCompiler() {
@@ -8,6 +8,13 @@ export function useCompiler() {
   const [compiling, setCompiling] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // Clean up debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   const compileNow = useCallback(async (input: CompileInput) => {
     setCompiling(true);

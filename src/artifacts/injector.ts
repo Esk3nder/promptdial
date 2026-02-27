@@ -40,7 +40,7 @@ export function injectBlocks(
   const afterTags =
     sectionTags.length > 0
       ? afterDoNotSend.filter(({ artifact, block }) => {
-          const hasMatch = block.tags.some((t) => sectionTags.includes(t));
+          const hasMatch = block.tags.some((t) => sectionTags.includes(t.toLowerCase()));
           if (!hasMatch) {
             entries.push({
               artifactId: artifact.id,

@@ -119,6 +119,7 @@ export async function compile(
 
   // 5. Generate spec
   const spec = generateSpec({
+    rawInput: input.rawInput,
     parsedIntent,
     template,
     dial: input.dial,

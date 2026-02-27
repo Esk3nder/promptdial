@@ -1,5 +1,6 @@
 import { db } from "@/app/lib/db";
 import type { Artifact } from "@/core/types";
+import { estimateTokens } from "@/app/lib/tokens";
 
 export async function getAllArtifacts(): Promise<Artifact[]> {
   return db.artifacts.toArray();
@@ -57,6 +58,13 @@ export async function initSeedArtifacts(): Promise<void> {
     import("./seeds/data-science.json").then((m) => m.default as Artifact),
     import("./seeds/ux-design.json").then((m) => m.default as Artifact),
   ]);
+
+  // Recompute tokenCounts to match the runtime estimateTokens formula
+  for (const seed of seeds) {
+    for (const block of seed.blocks) {
+      block.tokenCount = estimateTokens(block.content);
+    }
+  }
 
   await db.artifacts.bulkAdd(seeds);
 }

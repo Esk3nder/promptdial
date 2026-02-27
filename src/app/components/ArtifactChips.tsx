@@ -15,9 +15,9 @@ export default function ArtifactChips({
 
   return (
     <div className="flex flex-wrap gap-1.5">
-      {refs.map((ref) => (
+      {refs.map((ref, i) => (
         <button
-          key={ref.raw}
+          key={`${ref.raw}-${i}`}
           onClick={() => ref.resolved && onClickArtifact?.(ref.artifactId)}
           title={ref.resolved ? ref.artifactName : `${ref.raw} — not found`}
           className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors ${

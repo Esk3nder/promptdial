@@ -1,4 +1,5 @@
 import type { PromptSpec, LintResult } from "@/core/types";
+import { estimateTokens } from "@/app/lib/tokens";
 
 export interface LintRule {
   id: string;
@@ -81,7 +82,7 @@ export const rules: LintRule[] = [
     check: (spec, rendered) => {
       if (spec.tokenBudget <= 0) return null;
 
-      const estimatedTokens = Math.ceil(rendered.split(/\s+/).filter(Boolean).length * 1.3);
+      const estimatedTokens = estimateTokens(rendered);
       if (estimatedTokens > spec.tokenBudget) {
         return {
           ruleId: "budget-exceeded",
@@ -117,20 +118,26 @@ export const rules: LintRule[] = [
     },
   },
 
-  // 6. do-not-send-leak: error if any injectedBlock matches a doNotSend artifact block
+  // 6. do-not-send-leak: error if any injectedBlock has a "do-not-send" tag
+  // The block-selector filters doNotSend blocks by their boolean flag, but
+  // this rule provides a safety net by also checking for the conventional
+  // "do-not-send" tag in case a block's tag signals sensitivity even when
+  // the boolean flag was not set.
   {
     id: "do-not-send-leak",
     name: "Do-Not-Send Leak",
-    check: (spec, rendered) => {
+    check: (spec) => {
       const leakedBlocks: string[] = [];
 
       for (const section of spec.sections) {
         for (const block of section.injectedBlocks) {
-          // Check if this block's content appears in the rendered output
-          // and the block is tagged as sensitive / do-not-send
-          // The injectedBlock itself doesn't carry doNotSend, so we check
-          // if a block with tag "do-not-send" made it into the output
-          if (block.tags.includes("do-not-send")) {
+          const lowerTags = block.tags.map((t) => t.toLowerCase());
+          if (
+            lowerTags.includes("do-not-send") ||
+            lowerTags.includes("donotsend") ||
+            lowerTags.includes("sensitive") ||
+            lowerTags.includes("internal-only")
+          ) {
             leakedBlocks.push(`${block.artifactName}/${block.blockLabel}`);
           }
         }
@@ -141,8 +148,8 @@ export const rules: LintRule[] = [
           ruleId: "do-not-send-leak",
           ruleName: "Do-Not-Send Leak",
           severity: "error",
-          message: `${leakedBlocks.length} do-not-send block(s) leaked into output: ${leakedBlocks.join(", ")}.`,
-          fix: "Check the injection pipeline — blocks marked doNotSend should never appear in rendered output.",
+          message: `${leakedBlocks.length} potentially sensitive block(s) in output: ${leakedBlocks.join(", ")}.`,
+          fix: "Review blocks with sensitive tags (do-not-send, sensitive, internal-only). Mark them doNotSend: true in the artifact to exclude from output.",
         };
       }
       return null;

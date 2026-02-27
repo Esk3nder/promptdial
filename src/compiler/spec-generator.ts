@@ -8,6 +8,7 @@ import type {
 } from "@/core/types";
 
 export interface SpecGeneratorInput {
+  rawInput: string;
   parsedIntent: { templateId: string; constraints: string[]; cleanedInput: string };
   template: TemplateDefinition;
   dial: DialLevel;
@@ -17,7 +18,7 @@ export interface SpecGeneratorInput {
 }
 
 export function generateSpec(input: SpecGeneratorInput): PromptSpec {
-  const { parsedIntent, template, dial, tokenBudget, resolvedBlocks, artifactRefs } = input;
+  const { rawInput, parsedIntent, template, dial, tokenBudget, resolvedBlocks, artifactRefs } = input;
 
   // Filter sections by dial level
   const sections: PromptSpecSection[] = [];
@@ -35,7 +36,7 @@ export function generateSpec(input: SpecGeneratorInput): PromptSpec {
 
   return {
     id: crypto.randomUUID(),
-    rawInput: parsedIntent.cleanedInput,
+    rawInput,
     templateId: template.id,
     dial,
     tokenBudget,

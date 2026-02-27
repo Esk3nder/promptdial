@@ -57,7 +57,7 @@ export const ArtifactSchema = z.object({
   name: z.string().min(1),
   aliases: z.array(z.string()),
   description: z.string(),
-  blocks: z.array(ArtifactBlockSchema).min(1),
+  blocks: z.array(ArtifactBlockSchema),
   version: z.number().int().min(1),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
