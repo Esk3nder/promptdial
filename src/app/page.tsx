@@ -32,19 +32,22 @@ export default function Home() {
   const [tokenBudget, setTokenBudget] = useState(0);
   const [showArtifactManager, setShowArtifactManager] = useState(false);
 
-  const { output, compiling, error, compile } = useCompiler();
+  const { output, compiling, error, compile, clear } = useCompiler();
   const { artifacts, create, update, remove } = useArtifacts();
 
   // Trigger compilation on input changes
   useEffect(() => {
-    if (!rawInput.trim()) return;
+    if (!rawInput.trim()) {
+      clear();
+      return;
+    }
     compile({
       rawInput,
       dial,
       tokenBudget,
       templateOverride,
     });
-  }, [rawInput, dial, tokenBudget, templateOverride, compile]);
+  }, [rawInput, dial, tokenBudget, templateOverride, compile, clear]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -73,7 +76,10 @@ export default function Home() {
           Prompt Dial
         </h1>
         <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 text-xs text-gray-400">
+          <label
+            className="flex items-center gap-2 text-xs text-gray-400"
+            title="Limits tokens for injected @artifact blocks. 0 = unlimited. Does not affect template structure."
+          >
             Token budget
             <input
               type="number"

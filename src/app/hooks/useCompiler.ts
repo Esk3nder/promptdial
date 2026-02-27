@@ -45,5 +45,12 @@ export function useCompiler() {
     [compileNow]
   );
 
-  return { output, compiling, error, compile, compileNow };
+  const clear = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setOutput(null);
+    setError(null);
+    setCompiling(false);
+  }, []);
+
+  return { output, compiling, error, compile, compileNow, clear };
 }
